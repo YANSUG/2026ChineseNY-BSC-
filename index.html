@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐴 2026 金馬奔騰：鏈上遊樂園 🐴</title>
+    <style>
+        /* --- 全局設定 --- */
+        :root {
+            /* 馬年配色：更強調熱情奔放的紅與充滿活力的橘金 */
+            --bg-gradient: linear-gradient(135deg, #4a0000 0%, #800000 50%, #2b0505 100%);
+            --card-bg: rgba(0, 0, 0, 0.65);
+            --gold: #FFD700;
+            --orange: #FF8C00;
+            --text-color: #fff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            font-family: 'Microsoft JhengHei', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* --- 標題區 --- */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            color: var(--gold);
+            /* 馬年特效：增加一點動態感 */
+            text-shadow: 0 0 20px rgba(255, 140, 0, 0.6), 3px 3px 0px #000;
+            letter-spacing: 4px;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #ffcc99;
+            margin-top: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* --- 卡片容器 --- */
+        .game-container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* --- 遊戲卡片 --- */
+        .game-card {
+            background: var(--card-bg);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            width: 320px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        .game-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 15px 50px rgba(255, 140, 0, 0.4); /* 橘色光暈 */
+            border-color: #fff;
+        }
+
+        /* 流光特效 */
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%);
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .game-card:hover::before { opacity: 1; }
+
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            display: block;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .game-card:hover .icon { transform: scale(1.2) rotate(10deg); }
+
+        h2 {
+            font-size: 26px;
+            margin: 10px 0;
+            color: var(--gold);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #ddd;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #FFD700, #FF8C00);
+            color: #500000;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .game-card:hover .btn {
+            background: #fff;
+            color: #d90429;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+        }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 60px;
+            font-size: 13px;
+            color: #aaa;
+            padding-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        /* --- RWD --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .subtitle { font-size: 1rem; }
+            .game-card { width: 100%; max-width: 340px; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🐴 2026 金馬奔騰 🐴</h1>
+        <div class="subtitle">BSC 鏈上新春遊樂園 • 萬馬奔騰賺大錢</div>
+    </header>
+
+    <div class="game-container">
+        <a href="nian.html" class="game-card">
+            <span class="icon">🧨</span>
+            <h2>砲轟年獸</h2>
+            <p>
+                集結火力，驅逐年獸！<br>
+                搶奪 <strong>80% 尾刀大獎</strong><br>
+                初五開工分紅包，人人有份！
+            </p>
+            <span class="btn">進入戰鬥 ⚔️</span>
+        </a>
+
+        <a href="jiaobei.html" class="game-card">
+            <span class="icon">🐯</span>
+            <h2>虎爺擲筊</h2>
+            <p>
+                誠心祈求虎爺賜福！<br>
+                聖筊翻倍，<strong>立筊 8 倍暴擊</strong><br>
+                累積連勝，獨拿週冠軍獎池！
+            </p>
+            <span class="btn">試試手氣 🎲</span>
+        </a>
+    </div>
+
+    <footer>
+        Running on BSC Mainnet • 祝您馬年行大運，財源滾滾來！
+    </footer>
+
+</body>
+</html>
