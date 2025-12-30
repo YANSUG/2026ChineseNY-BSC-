@@ -36,7 +36,7 @@
         }
         .marquee-content {
             display: inline-block; white-space: nowrap;
-            animation: scroll 80s linear infinite; /* 速度適中 */
+            animation: scroll 80s linear infinite;
             color: #fff; font-size: 15px;
         }
         .marquee-item { margin-right: 50px; display: inline-flex; align-items: center; }
@@ -59,7 +59,6 @@
         .wish-paper { background: #fffce0; border: 2px solid #b71c1c; padding: 20px 15px; color: #b71c1c; border-radius: 5px; margin-bottom: 20px; position: relative; }
         .wish-input { width: 90%; border: none; border-bottom: 2px dashed #b71c1c; background: transparent; color: #b71c1c; font-size: 18px; padding: 8px; margin: 8px 0; text-align: center; outline: none; font-weight: bold; }
         
-        /* 按鈕樣式 (強制顯示 block 避免消失) */
         .btn {
             background: linear-gradient(180deg, var(--primary-gold), #FFA500);
             color: #500000; border: none; padding: 15px 30px;
@@ -78,15 +77,7 @@
         
         .hidden { display: none !important; }
         
-        /* 載入中訊息 */
         #loadingMsg { color: #FFA500; font-size: 18px; margin: 20px 0; display: none; }
-        
-        /* 偵錯訊息區 (預設隱藏，有錯才顯示) */
-        #debugMsg { 
-            color: #FFA500; font-size: 14px; margin: 20px 0; 
-            background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px;
-            display: none; border: 1px solid #555; text-align: left;
-        }
     </style>
 </head>
 <body>
@@ -100,8 +91,6 @@
     <div class="container">
         <h1>🏮 2026 幣圈光明燈 🏮</h1>
         <div class="subtitle">點燈祈福 HODL 一年，財神爺幫你錢滾錢</div>
-
-        <div id="debugMsg"></div>
 
         <div id="connectSection">
             <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包 (Connect)</button>
@@ -164,16 +153,17 @@
     </div>
 
 <script>
-    // ✅ 已更新為您的新合約地址
-    const CONTRACT_ADDRESS = "0x77A793BBBB0CfF216BD147Ee3a987eAD6a8fe4c6"; 
+    // ✅ 已更新為您的新合約地址 (0xfA...)
+    const CONTRACT_ADDRESS = "0xfA3261187c1cF8036D763493443f97e6C2787AcF"; 
 
-    // ✅ V3 ABI (包含 getBatchLamps 跑馬燈功能)
+    // ✅ V4 ABI (使用 getLampData)
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
         "function redeemLamp() external",
         "function requestEarlyExit() external",
         "function executeEarlyExit() external",
-        "function userLamps(address) view returns (string[3] wishes, uint256 principal, uint256 shares, uint256 unlockTime, uint256 cooldownEndTime, bool exists)",
+        // 使用我們新加的 getLampData 讀取，它能正確回傳願望陣列
+        "function getLampData(address _user) view returns (tuple(string[3] wishes, uint256 principal, uint256 shares, uint256 unlockTime, uint256 cooldownEndTime, bool exists))",
         "function getBatchLamps(uint256 count) view returns (tuple(address user, string[3] wishes)[])"
     ];
 
@@ -181,22 +171,12 @@
     let userAddress;
     let countdownInterval;
 
-    // 🔥 RPC 節點列表 (三線備援，防止讀取失敗)
     const RPC_URLS = [
         "https://bsc-dataseed1.binance.org/",
-        "https://bsc-dataseed2.binance.org/",
-        "https://rpc.ankr.com/bsc"
+        "https://rpc.ankr.com/bsc",
+        "https://bsc-dataseed2.binance.org/"
     ];
 
-    function logDebug(msg) {
-        const d = document.getElementById("debugMsg");
-        // 如果想看 Debug 訊息可取消下一行的註解
-        // d.style.display = "block";
-        d.innerHTML += `> ${msg}<br>`;
-        console.log(msg);
-    }
-
-    // 0. 初始化
     window.onload = function() {
         if (typeof ethers === 'undefined') {
             document.getElementById("marqueeText").innerText = "⚠️ Ethers.js 載入失敗";
@@ -205,26 +185,20 @@
         initRealMarquee();
     };
 
-    // 1. 跑馬燈 (嘗試多個節點)
     async function initRealMarquee() {
         const marqueeDiv = document.getElementById("marqueeText");
         
         for (let url of RPC_URLS) {
             try {
-                // logDebug("嘗試讀取跑馬燈: " + url);
                 const readProvider = new ethers.providers.JsonRpcProvider(url);
                 const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
                 
-                // 測試連線: 檢查該地址是否有代碼
+                // 測試連線
                 const code = await readProvider.getCode(CONTRACT_ADDRESS);
-                if (code === "0x") {
-                    throw new Error("此節點找不到合約代碼 (可能尚未部署到主網)");
-                }
+                if (code === "0x") throw new Error("合約未部署");
 
-                // 抓取最後 150 筆
                 const lamps = await readContract.getBatchLamps(150);
                 
-                // 成功讀取後
                 if (lamps.length === 0) {
                     marqueeDiv.innerHTML = "✨ 2026 幣圈光明燈虛位以待，現在點燈您就是第一位！ ✨";
                     return;
@@ -232,7 +206,6 @@
                 
                 let html = "";
                 let allWishes = [];
-                // 交叉顯示邏輯
                 for (let i = 0; i < 3; i++) {
                     lamps.forEach(lamp => {
                         const addr = lamp.user.substring(0,6) + ".." + lamp.user.substring(38);
@@ -242,26 +215,22 @@
                 }
                 allWishes.forEach(item => { html += `<span class="marquee-item"><span class="marquee-addr">${item.addr}</span> ${item.wish}</span>`; });
                 marqueeDiv.innerHTML = html + html;
-                return; // 成功就退出迴圈
+                return; 
 
             } catch (e) {
-                console.warn("節點失敗:", url, e.message);
-                continue; // 失敗就換下一個節點
+                console.warn("節點重試:", e.message);
+                continue;
             }
         }
-        
-        // 如果全部節點都失敗，顯示友善提示 (不會報錯死當)
-        marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈 (網路忙碌中，請連接錢包查看) ✨";
+        marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈 ✨";
     }
 
-    // 2. 連接錢包
     async function connectWallet() {
         if (typeof window.ethereum === 'undefined') { alert("請安裝 MetaMask"); return; }
         
         const btn = document.getElementById("connectBtn");
         btn.innerText = "連線中...";
         btn.disabled = true;
-        document.getElementById("debugMsg").innerHTML = ""; // 清空 Log
 
         try {
             provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -272,14 +241,14 @@
                 try {
                     await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }]});
                     provider = new ethers.providers.Web3Provider(window.ethereum);
-                } catch(e) { throw new Error("請切換到 BSC 主網 (Chain ID 56)"); }
+                } catch(e) { throw new Error("請切換到 BSC 主網"); }
             }
 
             signer = provider.getSigner();
             userAddress = await signer.getAddress();
             
             document.getElementById("connectSection").classList.add("hidden");
-            document.getElementById("loadingMsg").style.display = "block"; // 顯示載入中
+            document.getElementById("loadingMsg").style.display = "block";
             document.getElementById("userAddrShort").innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
             
             contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
@@ -287,9 +256,7 @@
             await checkLampStatus();
 
         } catch (e) { 
-            logDebug("錯誤: " + e.message);
             alert("連接失敗: " + e.message); 
-            // 恢復按鈕
             btn.innerText = "🦊 連結錢包 (Connect)";
             btn.disabled = false;
             document.getElementById("connectSection").classList.remove("hidden");
@@ -297,16 +264,14 @@
         }
     }
 
-    // 3. 狀態檢查
     async function checkLampStatus() {
         try {
-            logDebug("正在讀取合約資料...");
-            const lamp = await contract.userLamps(userAddress);
-            logDebug("讀取成功！");
+            // 🔥 使用 getLampData 讀取完整資料 (修復 CALL_EXCEPTION 的關鍵)
+            const lamp = await contract.getLampData(userAddress);
             
-            // 讀取成功後，隱藏載入訊息
             document.getElementById("loadingMsg").style.display = "none";
 
+            // lamp.shares 是 BigNumber，用 gt(0) 判斷
             if (lamp.exists && lamp.shares.gt(0)) {
                 document.getElementById("myLampSection").classList.remove("hidden");
                 renderMyLamp(lamp);
@@ -314,25 +279,25 @@
                 document.getElementById("lightLampSection").classList.remove("hidden");
             }
         } catch (e) { 
-            logDebug("讀取狀態失敗: " + (e.reason || e.message));
+            console.error(e);
             
-            // 讓用戶可以重試
+            let errMsg = "讀取資料失敗";
+            if (e.code === 'CALL_EXCEPTION') {
+                errMsg = "無法讀取合約！請確認：\n1. 您是否使用了 V4 合約代碼？\n2. 合約地址是否正確？";
+            }
+            alert(errMsg);
+
             document.getElementById("connectSection").classList.remove("hidden");
             document.getElementById("connectBtn").innerText = "🦊 連結錢包 (Connect)";
             document.getElementById("connectBtn").disabled = false;
             document.getElementById("loadingMsg").style.display = "none";
-            
-            if (e.code === 'CALL_EXCEPTION') {
-                alert("⚠️ 無法讀取合約！\n\n1. 請確認合約地址正確\n2. 請確認網路正常\n(請嘗試重新整理)");
-            } else {
-                alert("讀取失敗：" + e.message);
-            }
         }
     }
 
     function renderMyLamp(lamp) {
         const wishList = document.getElementById("myWishesList");
         wishList.innerHTML = "";
+        // 因為 getLampData 回傳的是 tuple，wishes 是陣列
         lamp.wishes.forEach(w => { if(w) wishList.innerHTML += `<li>✨ ${w}</li>`; });
         document.getElementById("myPrincipal").innerText = parseFloat(ethers.utils.formatEther(lamp.principal)).toFixed(4);
         
@@ -372,16 +337,12 @@
         if ((w1+w2+w3).match(/\d{9,}/)) { if(!confirm("⚠️ 偵測到長數字。確定要公開上鏈嗎？")) return; }
 
         try {
-            logDebug("發送交易...");
             const tx = await contract.lightLamp([w1, w2, w3], { value: ethers.utils.parseEther(amt) });
             alert("發送成功，等待上鏈...");
             await tx.wait();
             alert("🎉 點燈成功！");
             location.reload(); 
-        } catch(e) { 
-            logDebug("交易失敗: " + (e.data?.message || e.message));
-            alert("失敗: " + (e.data?.message || e.message)); 
-        }
+        } catch(e) { alert("失敗: " + (e.data?.message || e.message)); }
     }
 
     async function redeemLamp() { try { const tx = await contract.redeemLamp(); await tx.wait(); alert("領取成功"); location.reload(); } catch(e){alert(e.message);} }
@@ -406,3 +367,4 @@
 </script>
 </body>
 </html>
+
