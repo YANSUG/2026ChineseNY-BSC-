@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🏮 2026 幣圈光明燈 | 鏈上祈福 HODL 賺大錢</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -24,22 +26,21 @@
             overflow-x: hidden;
         }
 
-        /* --- 跑馬燈 --- */
+        /* 跑馬燈容器 */
         .marquee-container {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             border-bottom: 1px solid var(--primary-gold);
             width: 100%; height: 40px;
             display: flex; align-items: center;
-            overflow: hidden; position: relative;
-            z-index: 100;
+            overflow: hidden; position: relative; z-index: 100;
         }
         .marquee-content {
             display: inline-block; white-space: nowrap;
-            animation: scroll 120s linear infinite; /* 根據內容長度可調整速度 */
+            animation: scroll 60s linear infinite; /* 速度可調 */
             color: #fff; font-size: 15px;
         }
-        .marquee-item { margin-right: 60px; display: inline-flex; align-items: center; }
-        .marquee-addr { color: var(--primary-gold); margin-right: 10px; font-family: monospace; background: #300; padding: 2px 5px; border-radius: 4px; }
+        .marquee-item { margin-right: 50px; display: inline-flex; align-items: center; }
+        .marquee-addr { color: var(--primary-gold); margin-right: 8px; font-family: monospace; background: #300; padding: 2px 6px; border-radius: 4px; border: 1px solid #500; }
         
         @keyframes scroll {
             0% { transform: translateX(100vw); }
@@ -62,6 +63,7 @@
         .wish-paper { background: #fffce0; border: 2px solid #b71c1c; padding: 20px 15px; color: #b71c1c; border-radius: 5px; margin-bottom: 20px; position: relative; }
         .wish-input { width: 90%; border: none; border-bottom: 2px dashed #b71c1c; background: transparent; color: #b71c1c; font-size: 18px; padding: 8px; margin: 8px 0; text-align: center; outline: none; font-weight: bold; }
         
+        /* 按鈕樣式 (強制顯示 block) */
         .btn {
             background: linear-gradient(180deg, var(--primary-gold), #FFA500);
             color: #500000; border: none; padding: 15px 30px;
@@ -70,17 +72,15 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             display: block; 
         }
-        .btn:disabled { filter: grayscale(1); cursor: not-allowed; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn:active { transform: scale(0.98); }
         .btn-danger { background: linear-gradient(180deg, #ff5252, #b71c1c); color: white; }
 
-        .privacy-alert {
-            font-size: 13px; color: #ffcccc; background: rgba(183, 28, 28, 0.6);
-            padding: 10px; border-radius: 8px; margin-bottom: 15px;
-            border: 1px solid #ff5252; text-align: left; line-height: 1.5;
-        }
-
+        .privacy-alert { font-size: 13px; color: #ffcccc; background: rgba(183, 28, 28, 0.6); padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ff5252; text-align: left; }
         .status-value { font-size: 18px; font-weight: bold; color: #00FF00; }
         .countdown { font-family: monospace; font-size: 20px; color: #FFA500; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; margin: 15px 0; }
+        
+        /* 隱藏輔助類別 */
         .hidden { display: none !important; }
     </style>
 </head>
@@ -88,7 +88,7 @@
 
     <div class="marquee-container">
         <div class="marquee-content" id="marqueeText">
-            載入祈福牆中...
+            ✨ 載入鏈上祈福數據中... (若久候請檢查網路) ✨
         </div>
     </div>
 
@@ -98,7 +98,7 @@
 
         <div id="connectSection">
             <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包 (Connect)</button>
-            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC (BNB Chain) 主網</p>
+            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC 主網 • 0.01 BNB 點燈</p>
         </div>
 
         <div id="lightLampSection" class="hidden">
@@ -106,16 +106,16 @@
                 <h3 style="margin-top:0; color:var(--primary-gold);">🙏 填寫祈福疏文</h3>
                 
                 <div class="privacy-alert">
-                    <strong>⚠️ 重要提示：</strong><br>
-                    區塊鏈數據是公開透明的，請勿輸入真實姓名、電話、地址或任何私鑰密碼。<br>
-                    建議只填寫願望（如：BTC to 100k）。
+                    <strong>⚠️ 隱私警告：</strong><br>
+                    區塊鏈數據全公開，請勿輸入真實姓名、電話或私鑰。<br>
+                    建議只寫願望 (如：BTC 破十萬)。
                 </div>
 
                 <div class="wish-paper">
                     <div style="margin-bottom:10px; font-size:14px; opacity:0.8;">信徒：<span id="userAddrShort">...</span></div>
-                    <input type="text" id="wish1" class="wish-input" placeholder="願望一 (例: 比特幣破十萬)" maxlength="50">
-                    <input type="text" id="wish2" class="wish-input" placeholder="願望二 (例: 身體健康)" maxlength="50">
-                    <input type="text" id="wish3" class="wish-input" placeholder="願望三 (例: 財富自由)" maxlength="50">
+                    <input type="text" id="wish1" class="wish-input" placeholder="願望一 (例: 財富自由)" maxlength="50">
+                    <input type="text" id="wish2" class="wish-input" placeholder="願望二 (例: 家人健康)" maxlength="50">
+                    <input type="text" id="wish3" class="wish-input" placeholder="願望三 (例: 合約安全)" maxlength="50">
                 </div>
                 
                 <div style="margin-bottom: 20px;">
@@ -148,7 +148,7 @@
                     <div id="earlyExitSection">
                         <div style="border:1px solid #ff5252; padding:15px; border-radius:10px; background:rgba(183,28,28,0.3);">
                             <h4 style="margin:0 0 10px 0; color:#ff5252;">⚠️ 提早熄燈 (破財消災)</h4>
-                            <p style="color:#ff5252; font-size:13px;">警告：現在熄燈僅能取回本金，利潤充公。</p>
+                            <p style="color:#ff5252; font-size:13px;">警告：現在熄燈僅能取回本金，利潤將充公迴向社群。</p>
                             <button id="requestExitBtn" class="btn btn-danger" onclick="requestEarlyExit()">申請熄燈 (開始 7 天冷卻)</button>
                             <div id="cooldownTimerDiv" class="hidden">
                                 <p style="color:#FFA500;">⏳ 冷卻中...</p>
@@ -161,16 +161,12 @@
             </div>
         </div>
     </div>
-    
-    <footer style="font-size:12px; color:#666; padding-bottom:30px;">
-        Running on BSC Mainnet • 信仰無價，量力而為
-    </footer>
 
 <script>
-    // ✅ 已更新合約地址
+    // ✅ 這裡填寫您最新的 V3 合約地址
     const CONTRACT_ADDRESS = "0x0676b83f895fF8003c3149B1Dcb6c3D31B41ac6A"; 
 
-    // V3 ABI
+    // ✅ ABI 包含抓取願望的功能
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
         "function redeemLamp() external",
@@ -184,13 +180,24 @@
     let userAddress;
     let countdownInterval;
 
-    // --- 1. 抓取真實跑馬燈數據 (交叉顯示版) ---
+    // --- 0. 系統檢查 (防止空白) ---
+    window.onload = function() {
+        if (typeof ethers === 'undefined') {
+            alert("⚠️ 錯誤：Ethers.js 載入失敗！\n\n請檢查您的網路連線，或嘗試使用 VPN。\n(如果看不到按鈕，請重新整理)");
+            return;
+        }
+        initRealMarquee();
+    };
+
+    // --- 1. 真實交叉跑馬燈 ---
     async function initRealMarquee() {
         const marqueeDiv = document.getElementById("marqueeText");
+        // 使用 BSC 公共節點讀取資料 (不需連錢包)
         const readProvider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
         const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
 
         try {
+            // 抓取最後 150 筆
             const lamps = await readContract.getBatchLamps(150);
             
             if (lamps.length === 0) {
@@ -201,37 +208,34 @@
             let html = "";
             let allWishes = [];
 
-            // 🔥 邏輯：分層穿插 (Round-Robin)
-            // 先抓所有人的第1個願望，再抓所有人的第2個願望...
-            // 這樣同一人的願望就不會連在一起
-            for (let i = 0; i < 3; i++) { // 最多3個願望
+            // 🔥 交叉穿插邏輯 (Round-Robin)
+            for (let i = 0; i < 3; i++) {
                 lamps.forEach(lamp => {
-                    const addr = lamp.user.substring(0,6) + "..." + lamp.user.substring(38);
-                    const wish = lamp.wishes[i]; // 取第 i 個願望
-
-                    if (wish && wish !== "") {
+                    const addr = lamp.user.substring(0,6) + ".." + lamp.user.substring(38);
+                    const wish = lamp.wishes[i];
+                    if (wish && wish.trim() !== "") {
                         allWishes.push({ addr, wish });
                     }
                 });
             }
 
-            // 生成 HTML
+            // 產生 HTML
             allWishes.forEach(item => {
                 html += `<span class="marquee-item"><span class="marquee-addr">${item.addr}</span> ${item.wish}</span>`;
             });
 
-            // 內容重複兩次，讓跑馬燈視覺上無縫
+            // 複製一份讓捲動無縫
             marqueeDiv.innerHTML = html + html;
 
         } catch (e) {
             console.error("跑馬燈載入失敗", e);
-            marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈，祝您 HODL 住財富！ ✨";
+            marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈，請連接錢包查看詳情 ✨ (合約讀取異常)";
         }
     }
 
     // --- 2. 連接錢包 ---
     async function connectWallet() {
-        if (typeof window.ethereum === 'undefined') { alert("請安裝 MetaMask"); return; }
+        if (typeof window.ethereum === 'undefined') { alert("請安裝 MetaMask 錢包 APP 或擴充功能"); return; }
         try {
             provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
@@ -240,13 +244,14 @@
             if (network.chainId !== 56) {
                 try {
                     await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }]});
-                } catch(e) { alert("請切換到 BSC 主網"); return; }
+                } catch(e) { alert("請切換到 BSC 主網 (Chain ID 56)"); return; }
                 provider = new ethers.providers.Web3Provider(window.ethereum);
             }
 
             signer = provider.getSigner();
             userAddress = await signer.getAddress();
             
+            // 隱藏連接按鈕
             document.getElementById("connectSection").classList.add("hidden");
             document.getElementById("userAddrShort").innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
             
@@ -268,7 +273,7 @@
                 document.getElementById("lightLampSection").classList.remove("hidden");
                 document.getElementById("myLampSection").classList.add("hidden");
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("狀態讀取錯誤", e); }
     }
 
     function renderMyLamp(lamp) {
@@ -304,26 +309,26 @@
         }
     }
 
-    // --- 交易 ---
+    // --- 交易功能 ---
     async function lightLamp() {
         const w1 = document.getElementById("wish1").value;
         const w2 = document.getElementById("wish2").value;
         const w3 = document.getElementById("wish3").value;
         const amt = document.getElementById("depositAmount").value;
-        if(parseFloat(amt) < 0.01) { alert("至少 0.01 BNB"); return; }
+        if(parseFloat(amt) < 0.01) { alert("香油錢至少 0.01 BNB"); return; }
         
         if ((w1+w2+w3).match(/\d{9,}/)) { 
-             if(!confirm("⚠️ 偵測到長數字。確定要公開上鏈嗎？")) return;
+             if(!confirm("⚠️ 系統偵測到長數字 (可能為電話)。\n確定要公開上鏈嗎？")) return;
         }
 
         try {
             const tx = await contract.lightLamp([w1, w2, w3], { value: ethers.utils.parseEther(amt) });
-            alert("發送成功，等待上鏈...");
+            alert("交易已發送，請等待上鏈...");
             await tx.wait();
-            alert("🎉 點燈成功！");
+            alert("🎉 點燈成功！您的願望已刻在區塊鏈上。");
             checkLampStatus();
-            setTimeout(initRealMarquee, 5000);
-        } catch(e) { alert("失敗: " + e.message); }
+            setTimeout(initRealMarquee, 5000); // 重新載入跑馬燈
+        } catch(e) { alert("失敗: " + (e.data?.message || e.message)); }
     }
 
     async function redeemLamp() {
@@ -352,9 +357,8 @@
             }
         }, 1000);
     }
-
-    window.onload = initRealMarquee;
 </script>
 </body>
 </html>
+
 
