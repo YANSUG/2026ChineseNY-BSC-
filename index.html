@@ -2,206 +2,456 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐴 2026 金馬奔騰：鏈上遊樂園 🐴</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏮 2026 幣圈光明燈 | 鏈上祈福 HODL 賺大錢</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* --- 全局設定 --- */
+        /* --- 賽博龐克宮廟風格設定 --- */
         :root {
-            /* 馬年配色：更強調熱情奔放的紅與充滿活力的橘金 */
-            --bg-gradient: linear-gradient(135deg, #4a0000 0%, #800000 50%, #2b0505 100%);
-            --card-bg: rgba(0, 0, 0, 0.65);
-            --gold: #FFD700;
-            --orange: #FF8C00;
-            --text-color: #fff;
+            --primary-gold: #FFD700;
+            --primary-red: #D90429;
+            --dark-bg: #1a0505;
+            --neon-glow: 0 0 15px var(--primary-gold), 0 0 30px var(--primary-red);
         }
-
         body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: var(--bg-gradient);
-            color: var(--text-color);
-            font-family: 'Microsoft JhengHei', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at 50% 30%, #4a0000 0%, #1a0505 70%);
+            color: var(--primary-gold);
+            font-family: 'Noto Serif TC', 'Microsoft JhengHei', serif;
+            text-align: center;
+            margin: 0; padding: 20px;
+            min-height: 100vh; box-sizing: border-box;
             overflow-x: hidden;
         }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 2px 2px 8px #000; }
+        .subtitle { color: #ffb3b3; margin-bottom: 30px; font-size: 1.1rem; letter-spacing: 1px; }
 
-        /* --- 標題區 --- */
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            animation: fadeInDown 1s ease-out;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            margin: 0;
-            color: var(--gold);
-            /* 馬年特效：增加一點動態感 */
-            text-shadow: 0 0 20px rgba(255, 140, 0, 0.6), 3px 3px 0px #000;
-            letter-spacing: 4px;
-            font-weight: 900;
-        }
-
-        .subtitle {
-            font-size: 1.3rem;
-            color: #ffcc99;
-            margin-top: 15px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
+        .container { max-width: 500px; margin: 0 auto; padding-bottom: 50px; }
 
         /* --- 卡片容器 --- */
-        .game-container {
-            display: flex;
-            gap: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 20px;
-            max-width: 1200px;
-            width: 100%;
+        .dashboard-card {
+            background: rgba(60, 10, 10, 0.85);
+            border: 3px solid var(--primary-gold);
+            border-radius: 15px;
+            padding: 25px; margin-bottom: 25px;
+            box-shadow: var(--neon-glow);
+            backdrop-filter: blur(5px);
+            position: relative; overflow: hidden;
+        }
+        /* 燈籠紋理背景 */
+        .dashboard-card::before {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: repeating-linear-gradient(transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 12px);
+            pointer-events: none; opacity: 0.5;
         }
 
-        /* --- 遊戲卡片 --- */
-        .game-card {
-            background: var(--card-bg);
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            width: 320px;
-            padding: 30px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(12px);
-            text-decoration: none;
-            color: white;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
-
-        .game-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 15px 50px rgba(255, 140, 0, 0.4); /* 橘色光暈 */
-            border-color: #fff;
-        }
-
-        /* 流光特效 */
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%);
-            transform: rotate(45deg);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .game-card:hover::before { opacity: 1; }
-
-        .icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            display: block;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .game-card:hover .icon { transform: scale(1.2) rotate(10deg); }
-
-        h2 {
-            font-size: 26px;
-            margin: 10px 0;
-            color: var(--gold);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        p {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #ddd;
-            margin-bottom: 25px;
-        }
-
-        .btn {
-            display: inline-block;
-            background: linear-gradient(90deg, #FFD700, #FF8C00);
-            color: #500000;
-            padding: 12px 35px;
-            border-radius: 50px;
+        /* --- 祈福疏文 (黃紙樣式) --- */
+        .wish-paper {
+            background: #fffce0; /* 符紙黃 */
+            border: 2px solid #b71c1c;
+            padding: 20px 15px;
+            color: #b71c1c;
             font-weight: bold;
-            font-size: 18px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.3);
+            margin-bottom: 20px;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        .game-card:hover .btn {
-            background: #fff;
-            color: #d90429;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+        .wish-paper::after { 
+            content: '祈福疏文'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: #b71c1c; color: #fffce0; padding: 2px 15px; font-size: 14px; border-radius: 10px;
+            border: 1px solid #fffce0;
+        }
+        .wish-input {
+            width: 90%; border: none; border-bottom: 2px dashed #b71c1c;
+            background: transparent; color: #b71c1c;
+            font-size: 18px; padding: 8px; margin: 8px 0; text-align: center;
+            font-family: inherit; outline: none; font-weight: bold;
+        }
+        .wish-input::placeholder { color: rgba(183, 28, 28, 0.4); font-weight: normal; }
+
+        /* --- 願望清單展示 --- */
+        .wish-list-display {
+            list-style: none; padding: 0; margin: 10px 0;
+            color: #ffb3b3; font-size: 16px; line-height: 1.8;
+            text-align: center;
+        }
+        .wish-list-display li::before { content: "✨ "; }
+
+        /* --- 按鈕 --- */
+        .btn {
+            background: linear-gradient(180deg, var(--primary-gold), #FFA500);
+            color: #500000; border: none; padding: 15px 30px;
+            font-size: 20px; font-weight: bold; border-radius: 50px;
+            cursor: pointer; width: 100%; margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: all 0.2s; font-family: inherit;
+            position: relative; z-index: 10;
+        }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; background: #555; color: #aaa; }
+        
+        .btn-danger { 
+            background: linear-gradient(180deg, #ff5252, #b71c1c); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* --- Footer --- */
-        footer {
-            margin-top: 60px;
-            font-size: 13px;
-            color: #aaa;
-            padding-bottom: 30px;
-            letter-spacing: 1px;
+        /* --- 狀態數值 --- */
+        .status-row { display: flex; justify-content: space-between; margin: 10px 0; border-bottom: 1px dashed rgba(255, 215, 0, 0.3); padding-bottom: 5px; }
+        .status-label { color: #aaa; font-size: 14px; }
+        .status-value { font-size: 18px; font-weight: bold; color: #00FF00; }
+        
+        .countdown { 
+            font-family: monospace; font-size: 20px; color: #FFA500; 
+            background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px;
+            margin: 15px 0; border: 1px solid #FFA500;
         }
+        
+        .warning-box {
+            background: rgba(183, 28, 28, 0.2);
+            border: 1px solid #ff5252;
+            padding: 15px; border-radius: 10px;
+            margin-top: 20px;
+        }
+        .warning-text { color: #ff5252; font-size: 14px; margin-bottom: 10px; line-height: 1.4; }
 
-        /* --- RWD --- */
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2rem; }
-            .subtitle { font-size: 1rem; }
-            .game-card { width: 100%; max-width: 340px; }
-        }
+        /* --- 動畫 --- */
+        @keyframes glow { from { box-shadow: 0 0 20px #ff6f00; } to { box-shadow: 0 0 40px #ffca28, 0 0 10px #fff; } }
+        .glowing { animation: glow 2s infinite alternate; }
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @media (max-width: 480px) { h1 { font-size: 2rem; } .btn { font-size: 18px; } }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🐴 2026 金馬奔騰 🐴</h1>
-        <div class="subtitle">BSC 鏈上新春遊樂園 • 萬馬奔騰賺大錢</div>
-    </header>
+    <h1>🏮 2026 幣圈光明燈 🏮</h1>
+    <div class="subtitle">點燈祈福 HODL 一年，財神爺幫你錢滾錢</div>
 
-    <div class="game-container">
-        <a href="nian.html" class="game-card">
-            <span class="icon">🧨</span>
-            <h2>砲轟年獸</h2>
-            <p>
-                集結火力，驅逐年獸！<br>
-                搶奪 <strong>80% 尾刀大獎</strong><br>
-                初五開工分紅包，人人有份！
-            </p>
-            <span class="btn">進入戰鬥 ⚔️</span>
-        </a>
+    <div class="container">
+        
+        <div id="connectSection">
+            <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包 (Connect)</button>
+            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC (BNB Chain) 主網</p>
+        </div>
 
-        <a href="jiaobei.html" class="game-card">
-            <span class="icon">🐯</span>
-            <h2>虎爺擲筊</h2>
-            <p>
-                誠心祈求虎爺賜福！<br>
-                聖筊翻倍，<strong>立筊 8 倍暴擊</strong><br>
-                累積連勝，獨拿週冠軍獎池！
-            </p>
-            <span class="btn">試試手氣 🎲</span>
-        </a>
+        <div id="lightLampSection" style="display: none;">
+            <div class="dashboard-card">
+                <h3 style="margin-top:0; color:var(--primary-gold);">🙏 填寫祈福疏文</h3>
+                <div class="wish-paper">
+                    <div style="margin-bottom:10px; font-size:14px; opacity:0.8;">信徒：<span id="userAddrShort">...</span></div>
+                    <input type="text" id="wish1" class="wish-input" placeholder="願望一 (例：BTC 破十萬)" maxlength="50">
+                    <input type="text" id="wish2" class="wish-input" placeholder="願望二 (例：合約不爆倉)" maxlength="50">
+                    <input type="text" id="wish3" class="wish-input" placeholder="願望三 (例：全家平安)" maxlength="50">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="color:#aaa; font-size:14px;">香油錢 (BNB)</label><br>
+                    <input type="number" id="depositAmount" value="0.01" step="0.01" min="0.01" 
+                        style="padding: 12px; margin-top:5px; border-radius: 8px; border:2px solid var(--primary-gold); background:#300; color:var(--primary-gold); text-align:center; width:150px; font-size:20px; font-weight:bold;">
+                </div>
+                
+                <button id="lightBtn" class="btn" onclick="lightLamp()">✨ 誠心點燈 (Light Up)</button>
+                <p style="font-size:12px; color:#ccc; line-height:1.5;">
+                    *規則：點燈後鎖倉 365 天，期間透過 Liquid Staking 自動生息。<br>
+                    若堅持到底，可領回本金+利息+分潤。<br>
+                    若提早熄燈，僅退回本金，利潤充公迴向給社群。
+                </p>
+            </div>
+        </div>
+
+        <div id="myLampSection" style="display: none;">
+            <div class="dashboard-card glowing">
+                <h2 style="margin:0 0 15px 0; color:var(--primary-gold);">🏮 您的光明燈已安座</h2>
+                
+                <div style="text-align: left; background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;">
+                    <div style="font-size:14px; color:#aaa; margin-bottom:5px;">📜 祈福疏文：</div>
+                    <ul id="myWishesList" class="wish-list-display"></ul>
+                    
+                    <div class="status-row">
+                        <span class="status-label">💰 原始香油錢</span>
+                        <span class="status-value"><span id="myPrincipal">0</span> BNB</span>
+                    </div>
+                    <div class="status-row" style="border-bottom:none;">
+                        <span class="status-label">📅 功德圓滿日</span>
+                        <span style="font-size:14px; color:#fff;" id="unlockDate">---</span>
+                    </div>
+                </div>
+
+                <div id="countdownSection" class="countdown">計算中...</div>
+                
+                <div style="margin-top:20px;">
+                    <button id="redeemBtn" class="btn" style="display: none;" onclick="redeemLamp()">🎉 功德圓滿，領取福報</button>
+
+                    <div id="earlyExitSection">
+                        <div class="warning-box">
+                            <h4 style="margin: 0 0 10px 0; color:#ff5252;">⚠️ 提早熄燈 (破財消災)</h4>
+                            <p class="warning-text">警告：現在熄燈僅能取回本金，累積的利潤將迴向給其他堅持的信徒。</p>
+                            
+                            <button id="requestExitBtn" class="btn btn-danger" onclick="requestEarlyExit()">申請熄燈 (開始 7 天冷卻)</button>
+                            
+                            <div id="cooldownTimerDiv" style="display: none;">
+                                <p style="color:#FFA500; font-size:14px;">⏳ 熄燈冷卻中，請冷靜思考...</p>
+                                <div id="cooldownTimer" class="countdown" style="font-size:16px; margin:10px 0;"></div>
+                                <button id="executeExitBtn" class="btn btn-danger" style="display: none;" onclick="executeEarlyExit()">確認熄燈 (僅退本金)</button>
+                                <p style="font-size:12px; color:#aaa;">(若改變心意，只要不按確認，燈依然亮著)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <footer>
-        Running on BSC Mainnet • 祝您馬年行大運，財源滾滾來！
+    
+    <footer style="font-size:12px; color:#666; margin-top:30px;">
+        Contract: <a href="https://bscscan.com/address/0x68EF3Ba719f931A78339477952dDde5D85780141" target="_blank" style="color:#888; text-decoration:none;">0x68EF...0141</a><br>
+        Running on BSC Mainnet • 信仰無價，量力而為
     </footer>
 
+<script>
+    // =============== 設定區 ===============
+    // ✅ 已更新為您提供的合約地址
+    const CONTRACT_ADDRESS = "0x68EF3Ba719f931A78339477952dDde5D85780141"; 
+
+    // ✅ ABI 定義 (包含 5% 手續費版的所有功能)
+    const ABI = [
+        "function lightLamp(string[3] _wishes) external payable",
+        "function redeemLamp() external",
+        "function requestEarlyExit() external",
+        "function executeEarlyExit() external",
+        // userLamps 回傳 struct: wishes, principal, shares, unlockTime, cooldownEndTime, exists
+        "function userLamps(address) view returns (string[3] wishes, uint256 principal, uint256 shares, uint256 unlockTime, uint256 cooldownEndTime, bool exists)"
+    ];
+    // =====================================
+
+    let provider, signer, contract;
+    let userAddress;
+    let countdownInterval;
+
+    // 1. 連結錢包
+    async function connectWallet() {
+        if (typeof ethers === 'undefined') { alert("請安裝 MetaMask 或其他 Web3 錢包"); return; }
+        try {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []); // 請求授權
+            
+            // 檢查網路是否為 BSC Mainnet (Chain ID 56)
+            const network = await provider.getNetwork();
+            if (network.chainId !== 56) {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x38' }], // 56 in hex
+                    });
+                } catch (switchError) {
+                    alert("請將錢包切換至 BSC 主網 (Binance Smart Chain)");
+                    return;
+                }
+                // 切換後重新 provider
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+            }
+
+            signer = provider.getSigner();
+            userAddress = await signer.getAddress();
+            
+            // UI 更新
+            document.getElementById("connectSection").style.display = "none";
+            document.getElementById("userAddrShort").innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
+            
+            // 初始化合約
+            contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+            
+            // 檢查用戶狀態
+            await checkLampStatus();
+
+        } catch (e) { console.error(e); alert("連結失敗：" + e.message); }
+    }
+
+    // 2. 檢查燈的狀態
+    async function checkLampStatus() {
+        try {
+            const lamp = await contract.userLamps(userAddress);
+            
+            // 檢查是否存在且有份額 (exists && shares > 0)
+            // 注意: ethers v5 回傳 struct 為 array-like object
+            const exists = lamp.exists;
+            const shares = lamp.shares;
+            
+            if (exists && shares.gt(0)) {
+                // 已點燈
+                document.getElementById("lightLampSection").style.display = "none";
+                document.getElementById("myLampSection").style.display = "block";
+                renderMyLamp(lamp);
+            } else {
+                // 未點燈 (或已完全贖回/熄燈)
+                document.getElementById("lightLampSection").style.display = "block";
+                document.getElementById("myLampSection").style.display = "none";
+            }
+        } catch (e) { console.error("讀取狀態失敗", e); }
+    }
+
+    // 3. 渲染儀表板
+    function renderMyLamp(lamp) {
+        // 顯示願望
+        const wishList = document.getElementById("myWishesList");
+        wishList.innerHTML = "";
+        // lamp.wishes 是 array
+        lamp.wishes.forEach(w => { 
+            if(w && w !== "") wishList.innerHTML += `<li>${w}</li>`; 
+        });
+
+        // 顯示本金
+        document.getElementById("myPrincipal").innerText = parseFloat(ethers.utils.formatEther(lamp.principal)).toFixed(4);
+        
+        // 顯示解鎖時間
+        const unlockTime = lamp.unlockTime.toNumber();
+        const unlockDate = new Date(unlockTime * 1000);
+        document.getElementById("unlockDate").innerText = unlockDate.toLocaleString();
+
+        const now = Math.floor(Date.now() / 1000);
+        const cooldownEnd = lamp.cooldownEndTime.toNumber();
+
+        // 清除舊的計時器
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        if (now >= unlockTime) {
+            // --- 狀態：已解鎖 ---
+            document.getElementById("countdownSection").innerText = "✨ 時間到！已達功德圓滿日！";
+            document.getElementById("redeemBtn").style.display = "block";
+            document.getElementById("earlyExitSection").style.display = "none";
+        } else {
+            // --- 狀態：鎖倉中 ---
+            document.getElementById("redeemBtn").style.display = "none";
+            document.getElementById("earlyExitSection").style.display = "block";
+
+            // 判斷提早熄燈流程
+            if (cooldownEnd > 0) {
+                // 已申請冷卻，顯示冷卻倒數
+                document.getElementById("requestExitBtn").style.display = "none";
+                document.getElementById("cooldownTimerDiv").style.display = "block";
+                document.getElementById("countdownSection").innerText = "🔒 光明燈安座中..."; // 主倒數顯示安座中
+                
+                if (now >= cooldownEnd) {
+                    // 冷卻結束，可執行
+                    document.getElementById("cooldownTimer").innerText = "冷卻已結束";
+                    document.getElementById("executeExitBtn").style.display = "inline-block";
+                } else {
+                    // 冷卻倒數中
+                    startCountdown(cooldownEnd, "cooldownTimer", "冷卻結束，可執行熄燈", () => checkLampStatus());
+                }
+            } else {
+                // 尚未申請，顯示主倒數
+                document.getElementById("requestExitBtn").style.display = "inline-block";
+                document.getElementById("cooldownTimerDiv").style.display = "none";
+                startCountdown(unlockTime, "countdownSection", "即將功德圓滿", () => checkLampStatus());
+            }
+        }
+    }
+
+    // 4. 點燈 (Light Lamp)
+    async function lightLamp() {
+        const w1 = document.getElementById("wish1").value;
+        const w2 = document.getElementById("wish2").value;
+        const w3 = document.getElementById("wish3").value;
+        const amountBtn = document.getElementById("depositAmount").value;
+        
+        if (parseFloat(amountBtn) < 0.01) { alert("香油錢最低 0.01 BNB"); return; }
+
+        setLoading("lightBtn", "✨ 點燈儀式進行中...");
+        try {
+            // 呼叫合約
+            const tx = await contract.lightLamp([w1, w2, w3], { value: ethers.utils.parseEther(amountBtn) });
+            alert("交易已發送，請等待區塊鏈確認...");
+            await tx.wait(); // 等待上鏈
+            alert("🎉 點燈成功！您的光明燈已安座。");
+            checkLampStatus();
+        } catch (e) { handleError(e); } finally { resetLoading("lightBtn", "✨ 誠心點燈 (Light Up)"); }
+    }
+
+    // 5. 正常贖回 (Redeem)
+    async function redeemLamp() {
+        setLoading("redeemBtn", "處理中...");
+        try {
+            const tx = await contract.redeemLamp();
+            await tx.wait();
+            alert("💰 領取成功！本金與利息已發送至您的錢包。");
+            checkLampStatus();
+        } catch (e) { handleError(e); } finally { resetLoading("redeemBtn", "🎉 功德圓滿，領取福報"); }
+    }
+
+    // 6. 申請提早熄燈 (Request Exit)
+    async function requestEarlyExit() {
+        if(!confirm("⚠️【最後警告】\n\n提早熄燈將失去所有累積的利潤 (利息充公)，您確定要申請嗎？")) return;
+        setLoading("requestExitBtn", "申請中...");
+        try {
+            const tx = await contract.requestEarlyExit();
+            await tx.wait();
+            alert("⏳ 已申請熄燈，進入 7 天冷卻期。");
+            checkLampStatus();
+        } catch (e) { handleError(e); } finally { resetLoading("requestExitBtn", "申請熄燈 (開始 7 天冷卻)"); }
+    }
+
+    // 7. 執行提早熄燈 (Execute Exit)
+    async function executeEarlyExit() {
+        setLoading("executeExitBtn", "執行中...");
+        try {
+            const tx = await contract.executeEarlyExit();
+            await tx.wait();
+            alert("💔 已熄燈。本金已退回，利潤已迴向社群。");
+            checkLampStatus();
+        } catch (e) { handleError(e); } finally { resetLoading("executeExitBtn", "確認熄燈 (僅退本金)"); }
+    }
+
+    // --- 工具函數 ---
+    function startCountdown(targetTime, elementId, endMessage, callback) {
+        const el = document.getElementById(elementId);
+        
+        // 避免重複計時
+        if (el.dataset.timerId) clearInterval(el.dataset.timerId);
+
+        const timerId = setInterval(() => {
+            const now = Math.floor(Date.now() / 1000);
+            const diff = targetTime - now;
+            if (diff <= 0) {
+                clearInterval(timerId);
+                el.innerText = endMessage;
+                if (callback) callback();
+            } else {
+                const d = Math.floor(diff / (3600 * 24));
+                const h = Math.floor((diff % (3600 * 24)) / 3600);
+                const m = Math.floor((diff % 3600) / 60);
+                const s = diff % 60;
+                el.innerText = `還有 ${d}天 ${h}時 ${m}分 ${s}秒`;
+            }
+        }, 1000);
+        
+        // 儲存 timerId 之後可清除
+        el.dataset.timerId = timerId;
+        // 同步全域變數 (選用)
+        countdownInterval = timerId; 
+    }
+
+    function setLoading(btnId, text) {
+        const btn = document.getElementById(btnId);
+        btn.dataset.orgText = btn.innerText;
+        btn.innerText = text; btn.disabled = true;
+    }
+    function resetLoading(btnId, text) {
+        const btn = document.getElementById(btnId);
+        btn.innerText = text || btn.dataset.orgText; btn.disabled = false;
+    }
+    function handleError(e) {
+        console.error(e);
+        let msg = e.data?.message || e.message || JSON.stringify(e);
+        if (msg.includes("Wish too long")) msg = "疏文太長了 (每個願望限100中文字)";
+        if (msg.includes("Min donation")) msg = "香油錢不足 0.01 BNB";
+        if (msg.includes("Not yet time")) msg = "時辰未到，請耐心等待";
+        if (msg.includes("Wait for cooldown")) msg = "冷卻期尚未結束";
+        if (msg.includes("user rejected")) msg = "您取消了交易";
+        alert("操作失敗：" + msg);
+    }
+</script>
 </body>
 </html>
