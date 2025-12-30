@@ -155,7 +155,10 @@
     </div>
 
 <script>
+    // 🚨🚨🚨 請務必在這裡填入您剛剛重新部署後的正確合約地址 🚨🚨🚨
+    // 舊的地址可能無法使用，請去 Remix 確認
     const CONTRACT_ADDRESS = "0x0676b83f895fF8003c3149B1Dcb6c3D31B41ac6A"; 
+
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
         "function redeemLamp() external",
@@ -177,13 +180,15 @@
         initRealMarquee();
     };
 
-    // 1. 跑馬燈
+    // 1. 跑馬燈 (使用穩定的 BSC RPC 節點)
     async function initRealMarquee() {
         const marqueeDiv = document.getElementById("marqueeText");
-        const readProvider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+        // 使用官方推薦的公共節點，減少報錯機率
+        const readProvider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org/");
         const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
 
         try {
+            // 如果這個呼叫失敗，代表合約地址錯了，或者合約沒有這個功能
             const lamps = await readContract.getBatchLamps(150);
             if (lamps.length === 0) {
                 marqueeDiv.innerHTML = "✨ 2026 幣圈光明燈虛位以待，現在點燈您就是第一位！ ✨";
@@ -202,11 +207,16 @@
             marqueeDiv.innerHTML = html + html;
         } catch (e) {
             console.error("跑馬燈失敗", e);
-            marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈 (跑馬燈讀取中...) ✨";
+            // 這裡顯示錯誤提示，幫助除錯
+            if(e.code === 'CALL_EXCEPTION') {
+                 marqueeDiv.innerHTML = "⚠️ 讀取合約失敗：請檢查前端代碼中的 CONTRACT_ADDRESS 是否正確！";
+            } else {
+                 marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈 (數據載入中...) ✨";
+            }
         }
     }
 
-    // 2. 連接錢包 (安全版)
+    // 2. 連接錢包 (防呆版)
     async function connectWallet() {
         if (typeof window.ethereum === 'undefined') { alert("請安裝 MetaMask"); return; }
         
@@ -222,27 +232,25 @@
             if (network.chainId !== 56) {
                 try {
                     await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }]});
-                    provider = new ethers.providers.Web3Provider(window.ethereum); // 重新建立 provider
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
                 } catch(e) { throw new Error("請切換到 BSC 主網 (Chain ID 56)"); }
             }
 
             signer = provider.getSigner();
             userAddress = await signer.getAddress();
             
-            // UI 更新：先顯示載入中，不要急著隱藏
             document.getElementById("connectSection").classList.add("hidden");
             document.getElementById("loadingMsg").style.display = "block";
             document.getElementById("userAddrShort").innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
             
             contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
             
-            // 讀取狀態
             await checkLampStatus();
 
         } catch (e) { 
             console.error(e); 
             alert("連接失敗: " + e.message); 
-            // 失敗時恢復按鈕
+            // 發生錯誤時，恢復按鈕顯示，不要讓畫面變白
             btn.innerText = "🦊 連結錢包 (Connect)";
             btn.disabled = false;
             document.getElementById("connectSection").classList.remove("hidden");
@@ -250,14 +258,10 @@
         }
     }
 
-    // 3. 狀態檢查
+    // 3. 狀態檢查 (錯誤攔截)
     async function checkLampStatus() {
         try {
-            console.log("正在讀取合約...", userAddress);
             const lamp = await contract.userLamps(userAddress);
-            console.log("合約回傳:", lamp);
-
-            // 成功讀取後，隱藏載入訊息
             document.getElementById("loadingMsg").style.display = "none";
 
             if (lamp.exists && lamp.shares.gt(0)) {
@@ -268,11 +272,19 @@
             }
         } catch (e) { 
             console.error("狀態讀取錯誤", e);
-            document.getElementById("loadingMsg").innerHTML = "⚠️ 讀取合約失敗，請重新整理或檢查網路";
-            // 彈出錯誤讓你知道原因
-            alert("讀取合約數據失敗：" + (e.reason || e.message));
-            // 恢復顯示連接按鈕
+            
+            // 🚨 這是最重要的錯誤處理 🚨
+            let errorMsg = "讀取合約失敗";
+            if (e.code === 'CALL_EXCEPTION') {
+                errorMsg = "合約呼叫失敗 (CALL_EXCEPTION)。\n\n原因可能是：\n1. 合約地址錯誤 (請確認 CONTRACT_ADDRESS)\n2. 合約未部署在 BSC 主網\n3. 該地址沒有這個合約代碼";
+            }
+            
+            alert(errorMsg);
+            
+            // 恢復顯示連接按鈕，讓用戶可以重試
             document.getElementById("connectSection").classList.remove("hidden");
+            document.getElementById("connectBtn").innerText = "🦊 連結錢包 (Connect)";
+            document.getElementById("connectBtn").disabled = false;
             document.getElementById("loadingMsg").style.display = "none";
         }
     }
@@ -310,7 +322,6 @@
         }
     }
 
-    // 交易功能
     async function lightLamp() {
         const w1 = document.getElementById("wish1").value;
         const w2 = document.getElementById("wish2").value;
@@ -324,7 +335,7 @@
             alert("發送成功，等待上鏈...");
             await tx.wait();
             alert("🎉 點燈成功！");
-            location.reload(); // 重新整理最保險
+            location.reload(); 
         } catch(e) { alert("失敗: " + (e.data?.message || e.message)); }
     }
 
@@ -351,3 +362,4 @@
 </script>
 </body>
 </html>
+
