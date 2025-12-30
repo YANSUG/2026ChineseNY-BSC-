@@ -6,7 +6,6 @@
     <title>🏮 2026 幣圈光明燈 | 鏈上祈福 HODL 賺大錢</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -44,8 +43,24 @@
         @keyframes scroll { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
         .container { max-width: 500px; margin: 20px auto; padding: 0 20px 80px 20px; }
-        h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 2px 2px 8px #000; margin-top: 20px; }
-        .subtitle { color: #ffb3b3; margin-bottom: 30px; font-size: 1.1rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 5px; text-shadow: 2px 2px 8px #000; margin-top: 20px; }
+        .subtitle { color: #ffb3b3; margin-bottom: 20px; font-size: 1.1rem; }
+
+        /* 🔥 V6 三欄式數據看板 */
+        .stats-board {
+            display: flex; justify-content: space-between;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--primary-gold);
+            border-radius: 12px;
+            padding: 15px 5px; margin-bottom: 25px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+        .stat-item { display: flex; flex-direction: column; width: 32%; align-items: center; }
+        .stat-label { font-size: 11px; color: #aaa; margin-bottom: 5px; white-space: nowrap; }
+        .stat-value { font-size: 16px; font-weight: bold; color: var(--primary-gold); font-family: monospace; word-break: break-all; }
+        
+        /* 純收益亮綠色 */
+        #totalProfit { color: #00FF00; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
 
         .dashboard-card {
             background: rgba(60, 10, 10, 0.9);
@@ -76,7 +91,6 @@
         .countdown { font-family: monospace; font-size: 20px; color: #FFA500; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; margin: 15px 0; }
         
         .hidden { display: none !important; }
-        
         #loadingMsg { color: #FFA500; font-size: 18px; margin: 20px 0; display: none; }
     </style>
 </head>
@@ -92,9 +106,24 @@
         <h1>🏮 2026 幣圈光明燈 🏮</h1>
         <div class="subtitle">點燈祈福 HODL 一年，財神爺幫你錢滾錢</div>
 
+        <div class="stats-board">
+            <div class="stat-item">
+                <span class="stat-label">🔥 累積香油錢</span>
+                <span class="stat-value" id="totalBNB">0.00 BNB</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">💰 累積純收益</span>
+                <span class="stat-value" id="totalProfit">0.00 BNB</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">👥 累積信徒</span>
+                <span class="stat-value" id="totalUsers">0</span>
+            </div>
+        </div>
+
         <div id="connectSection">
             <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包 (Connect)</button>
-            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC 主網 • 0.01 BNB 點燈</p>
+            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC 主網 • 0.1 ~ 1.0 BNB</p>
         </div>
 
         <div id="loadingMsg">⏳ 正在讀取區塊鏈數據...</div>
@@ -104,8 +133,8 @@
                 <h3 style="margin-top:0; color:var(--primary-gold);">🙏 填寫祈福疏文</h3>
                 <div class="privacy-alert">
                     <strong>⚠️ 隱私警告：</strong><br>
-                    區塊鏈數據全公開，請勿輸入真實姓名、電話或私鑰。<br>
-                    建議只寫願望 (如：BTC 破十萬)。
+                    區塊鏈數據全公開，請勿輸入個資或私鑰。<br>
+                    香油錢限制：<strong>0.1 ~ 1.0 BNB</strong>。
                 </div>
                 <div class="wish-paper">
                     <div style="margin-bottom:10px; font-size:14px; opacity:0.8;">信徒：<span id="userAddrShort">...</span></div>
@@ -115,8 +144,9 @@
                 </div>
                 <div style="margin-bottom: 20px;">
                     <label style="color:#aaa; font-size:14px;">香油錢 (BNB)</label><br>
-                    <input type="number" id="depositAmount" value="0.01" step="0.01" min="0.01" 
+                    <input type="number" id="depositAmount" value="0.1" step="0.01" min="0.1" max="1.0" 
                         style="padding: 12px; margin-top:5px; border-radius: 8px; border:2px solid var(--primary-gold); background:#300; color:var(--primary-gold); text-align:center; width:150px; font-size:20px; font-weight:bold;">
+                    <p style="color:#888; font-size:12px; margin-top:5px;">( 範圍限制：0.1 ~ 1.0 BNB )</p>
                 </div>
                 <button id="lightBtn" class="btn" onclick="lightLamp()">✨ 誠心點燈 (Light Up)</button>
             </div>
@@ -153,18 +183,19 @@
     </div>
 
 <script>
-    // ✅ 已更新為您的新合約地址 (0xfA...)
-    const CONTRACT_ADDRESS = "0xfA3261187c1cF8036D763493443f97e6C2787AcF"; 
+    // 🚨 請確認填入 V6 新合約地址 🚨
+    const CONTRACT_ADDRESS = "0x59ee4B9807f8ceb4b383a9b064F2B767495e39b7"; 
 
-    // ✅ V4 ABI (使用 getLampData)
+    // ✅ V6 ABI (包含 getGlobalStats)
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
         "function redeemLamp() external",
         "function requestEarlyExit() external",
         "function executeEarlyExit() external",
-        // 使用我們新加的 getLampData 讀取，它能正確回傳願望陣列
         "function getLampData(address _user) view returns (tuple(string[3] wishes, uint256 principal, uint256 shares, uint256 unlockTime, uint256 cooldownEndTime, bool exists))",
-        "function getBatchLamps(uint256 count) view returns (tuple(address user, string[3] wishes)[])"
+        "function getBatchLamps(uint256 count) view returns (tuple(address user, string[3] wishes)[])",
+        // V6 統計功能
+        "function getGlobalStats() view returns (uint256, uint256, uint256)"
     ];
 
     let provider, signer, contract;
@@ -182,10 +213,11 @@
             document.getElementById("marqueeText").innerText = "⚠️ Ethers.js 載入失敗";
             return;
         }
-        initRealMarquee();
+        initData();
     };
 
-    async function initRealMarquee() {
+    // 1. 初始化 (跑馬燈 + V6 數據統計)
+    async function initData() {
         const marqueeDiv = document.getElementById("marqueeText");
         
         for (let url of RPC_URLS) {
@@ -193,12 +225,26 @@
                 const readProvider = new ethers.providers.JsonRpcProvider(url);
                 const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
                 
-                // 測試連線
                 const code = await readProvider.getCode(CONTRACT_ADDRESS);
                 if (code === "0x") throw new Error("合約未部署");
 
-                const lamps = await readContract.getBatchLamps(150);
-                
+                // 🔥 平行讀取：跑馬燈 + V6 統計數據
+                const [lamps, stats] = await Promise.all([
+                    readContract.getBatchLamps(150),
+                    readContract.getGlobalStats()
+                ]);
+
+                // 解構統計數據: [totalDeposited, totalParticipants, totalNetProfit]
+                const totalDeposited = stats[0];
+                const totalUsers = stats[1];
+                const totalProfit = stats[2];
+
+                // 更新看板
+                document.getElementById("totalBNB").innerText = parseFloat(ethers.utils.formatEther(totalDeposited)).toFixed(2) + " BNB";
+                document.getElementById("totalUsers").innerText = totalUsers.toString();
+                document.getElementById("totalProfit").innerText = parseFloat(ethers.utils.formatEther(totalProfit)).toFixed(4) + " BNB";
+
+                // 更新跑馬燈
                 if (lamps.length === 0) {
                     marqueeDiv.innerHTML = "✨ 2026 幣圈光明燈虛位以待，現在點燈您就是第一位！ ✨";
                     return;
@@ -266,12 +312,9 @@
 
     async function checkLampStatus() {
         try {
-            // 🔥 使用 getLampData 讀取完整資料 (修復 CALL_EXCEPTION 的關鍵)
             const lamp = await contract.getLampData(userAddress);
-            
             document.getElementById("loadingMsg").style.display = "none";
 
-            // lamp.shares 是 BigNumber，用 gt(0) 判斷
             if (lamp.exists && lamp.shares.gt(0)) {
                 document.getElementById("myLampSection").classList.remove("hidden");
                 renderMyLamp(lamp);
@@ -280,13 +323,7 @@
             }
         } catch (e) { 
             console.error(e);
-            
-            let errMsg = "讀取資料失敗";
-            if (e.code === 'CALL_EXCEPTION') {
-                errMsg = "無法讀取合約！請確認：\n1. 您是否使用了 V4 合約代碼？\n2. 合約地址是否正確？";
-            }
-            alert(errMsg);
-
+            alert("讀取資料失敗，請確認合約地址正確！");
             document.getElementById("connectSection").classList.remove("hidden");
             document.getElementById("connectBtn").innerText = "🦊 連結錢包 (Connect)";
             document.getElementById("connectBtn").disabled = false;
@@ -297,7 +334,6 @@
     function renderMyLamp(lamp) {
         const wishList = document.getElementById("myWishesList");
         wishList.innerHTML = "";
-        // 因為 getLampData 回傳的是 tuple，wishes 是陣列
         lamp.wishes.forEach(w => { if(w) wishList.innerHTML += `<li>✨ ${w}</li>`; });
         document.getElementById("myPrincipal").innerText = parseFloat(ethers.utils.formatEther(lamp.principal)).toFixed(4);
         
@@ -333,7 +369,11 @@
         const w2 = document.getElementById("wish2").value;
         const w3 = document.getElementById("wish3").value;
         const amt = document.getElementById("depositAmount").value;
-        if(parseFloat(amt) < 0.01) { alert("至少 0.01 BNB"); return; }
+        
+        // 🔥 驗證金額範圍 (0.1 ~ 1.0)
+        const amtFloat = parseFloat(amt);
+        if (amtFloat < 0.1 || amtFloat > 1.0) { alert("⛔️ 香油錢限制範圍：0.1 ~ 1.0 BNB"); return; }
+        
         if ((w1+w2+w3).match(/\d{9,}/)) { if(!confirm("⚠️ 偵測到長數字。確定要公開上鏈嗎？")) return; }
 
         try {
@@ -367,4 +407,5 @@
 </script>
 </body>
 </html>
+
 
