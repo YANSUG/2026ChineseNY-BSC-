@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🏮 2026 幣圈光明燈 | V3 0.05% 專用版</title>
+    <title>🏮 2026 幣圈光明燈 | V3 0.05% 收益版</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
@@ -182,10 +182,10 @@
     </div>
 
 <script>
-    // 🚨🚨🚨 請在此填入您的 V8 合約地址 🚨🚨🚨
-    const CONTRACT_ADDRESS = "0xPUT_YOUR_V8_ADDRESS_HERE"; 
+    // ✅ 已更新為您的 V8 合約地址
+    const CONTRACT_ADDRESS = "0x3D7D920343CeEA5e0420db9e18d22117f2cdb90a"; 
 
-    // ✅ V8 ABI (符合 FinalLightV8.sol)
+    // ✅ V8 ABI
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
         "function redeemLamp() external",
@@ -306,7 +306,6 @@
 
     async function checkLampStatus() {
         try {
-            // V8 getLampData 回傳: wishes, principal, shares, unlockTime, cooldownEndTime, exists
             const lamp = await contract.getLampData(userAddress);
             document.getElementById("loadingMsg").style.display = "none";
 
@@ -407,6 +406,7 @@
 </script>
 </body>
 </html>
+
 
 
 
