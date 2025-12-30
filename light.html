@@ -36,7 +36,7 @@
         }
         .marquee-content {
             display: inline-block; white-space: nowrap;
-            animation: scroll 60s linear infinite;
+            animation: scroll 80s linear infinite; /* 速度適中 */
             color: #fff; font-size: 15px;
         }
         .marquee-item { margin-right: 50px; display: inline-flex; align-items: center; }
@@ -59,6 +59,7 @@
         .wish-paper { background: #fffce0; border: 2px solid #b71c1c; padding: 20px 15px; color: #b71c1c; border-radius: 5px; margin-bottom: 20px; position: relative; }
         .wish-input { width: 90%; border: none; border-bottom: 2px dashed #b71c1c; background: transparent; color: #b71c1c; font-size: 18px; padding: 8px; margin: 8px 0; text-align: center; outline: none; font-weight: bold; }
         
+        /* 按鈕樣式 (強制顯示 block 避免消失) */
         .btn {
             background: linear-gradient(180deg, var(--primary-gold), #FFA500);
             color: #500000; border: none; padding: 15px 30px;
@@ -77,7 +78,10 @@
         
         .hidden { display: none !important; }
         
-        /* 偵錯訊息區 */
+        /* 載入中訊息 */
+        #loadingMsg { color: #FFA500; font-size: 18px; margin: 20px 0; display: none; }
+        
+        /* 偵錯訊息區 (預設隱藏，有錯才顯示) */
         #debugMsg { 
             color: #FFA500; font-size: 14px; margin: 20px 0; 
             background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px;
@@ -103,6 +107,8 @@
             <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包 (Connect)</button>
             <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC 主網 • 0.01 BNB 點燈</p>
         </div>
+
+        <div id="loadingMsg">⏳ 正在讀取區塊鏈數據...</div>
 
         <div id="lightLampSection" class="hidden">
             <div class="dashboard-card">
@@ -158,8 +164,10 @@
     </div>
 
 <script>
-    const CONTRACT_ADDRESS = "0x734032bE5689aBBeE538129944Cf83d285F068D1"; 
+    // ✅ 已更新為您的新合約地址
+    const CONTRACT_ADDRESS = "0x77A793BBBB0CfF216BD147Ee3a987eAD6a8fe4c6"; 
 
+    // ✅ V3 ABI (包含 getBatchLamps 跑馬燈功能)
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
         "function redeemLamp() external",
@@ -173,7 +181,7 @@
     let userAddress;
     let countdownInterval;
 
-    // 🔥 RPC 節點列表 (三線備援)
+    // 🔥 RPC 節點列表 (三線備援，防止讀取失敗)
     const RPC_URLS = [
         "https://bsc-dataseed1.binance.org/",
         "https://bsc-dataseed2.binance.org/",
@@ -182,7 +190,8 @@
 
     function logDebug(msg) {
         const d = document.getElementById("debugMsg");
-        d.style.display = "block";
+        // 如果想看 Debug 訊息可取消下一行的註解
+        // d.style.display = "block";
         d.innerHTML += `> ${msg}<br>`;
         console.log(msg);
     }
@@ -206,12 +215,13 @@
                 const readProvider = new ethers.providers.JsonRpcProvider(url);
                 const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
                 
-                // 測試連線
+                // 測試連線: 檢查該地址是否有代碼
                 const code = await readProvider.getCode(CONTRACT_ADDRESS);
                 if (code === "0x") {
-                    throw new Error("此節點找不到合約代碼 (Not Deployed?)");
+                    throw new Error("此節點找不到合約代碼 (可能尚未部署到主網)");
                 }
 
+                // 抓取最後 150 筆
                 const lamps = await readContract.getBatchLamps(150);
                 
                 // 成功讀取後
@@ -222,6 +232,7 @@
                 
                 let html = "";
                 let allWishes = [];
+                // 交叉顯示邏輯
                 for (let i = 0; i < 3; i++) {
                     lamps.forEach(lamp => {
                         const addr = lamp.user.substring(0,6) + ".." + lamp.user.substring(38);
@@ -238,7 +249,9 @@
                 continue; // 失敗就換下一個節點
             }
         }
-        marqueeDiv.innerHTML = "⚠️ 網路繁忙，無法讀取祈福牆 (請稍後再試)";
+        
+        // 如果全部節點都失敗，顯示友善提示 (不會報錯死當)
+        marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈 (網路忙碌中，請連接錢包查看) ✨";
     }
 
     // 2. 連接錢包
@@ -266,6 +279,7 @@
             userAddress = await signer.getAddress();
             
             document.getElementById("connectSection").classList.add("hidden");
+            document.getElementById("loadingMsg").style.display = "block"; // 顯示載入中
             document.getElementById("userAddrShort").innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
             
             contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
@@ -275,9 +289,11 @@
         } catch (e) { 
             logDebug("錯誤: " + e.message);
             alert("連接失敗: " + e.message); 
+            // 恢復按鈕
             btn.innerText = "🦊 連結錢包 (Connect)";
             btn.disabled = false;
             document.getElementById("connectSection").classList.remove("hidden");
+            document.getElementById("loadingMsg").style.display = "none";
         }
     }
 
@@ -287,6 +303,9 @@
             logDebug("正在讀取合約資料...");
             const lamp = await contract.userLamps(userAddress);
             logDebug("讀取成功！");
+            
+            // 讀取成功後，隱藏載入訊息
+            document.getElementById("loadingMsg").style.display = "none";
 
             if (lamp.exists && lamp.shares.gt(0)) {
                 document.getElementById("myLampSection").classList.remove("hidden");
@@ -301,9 +320,10 @@
             document.getElementById("connectSection").classList.remove("hidden");
             document.getElementById("connectBtn").innerText = "🦊 連結錢包 (Connect)";
             document.getElementById("connectBtn").disabled = false;
+            document.getElementById("loadingMsg").style.display = "none";
             
             if (e.code === 'CALL_EXCEPTION') {
-                alert("⚠️ 無法讀取合約！\n可能原因：合約地址錯誤，或您當前的 RPC 節點不同步。\n請重新整理頁面再試。");
+                alert("⚠️ 無法讀取合約！\n\n1. 請確認合約地址正確\n2. 請確認網路正常\n(請嘗試重新整理)");
             } else {
                 alert("讀取失敗：" + e.message);
             }
@@ -386,6 +406,3 @@
 </script>
 </body>
 </html>
-
-
-
