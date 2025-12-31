@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🏮 2026 幣圈光明燈 | V8 除錯版</title>
+    <title>🏮 2026 幣圈光明燈 | Crypto Beacon Light V8</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
@@ -42,8 +42,8 @@
         @keyframes scroll { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
         .container { max-width: 500px; margin: 20px auto; padding: 0 20px 80px 20px; }
-        h1 { font-size: 2.5rem; margin-bottom: 5px; text-shadow: 2px 2px 8px #000; margin-top: 20px; }
-        .subtitle { color: #ffb3b3; margin-bottom: 20px; font-size: 1.1rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 5px; text-shadow: 2px 2px 8px #000; margin-top: 20px; }
+        .subtitle { color: #ffb3b3; margin-bottom: 20px; font-size: 1rem; line-height: 1.4; }
 
         .stats-board {
             display: flex; justify-content: space-between;
@@ -55,7 +55,7 @@
         }
         .stat-item { display: flex; flex-direction: column; width: 32%; align-items: center; }
         .stat-label { font-size: 11px; color: #aaa; margin-bottom: 5px; white-space: nowrap; }
-        .stat-value { font-size: 16px; font-weight: bold; color: var(--primary-gold); font-family: monospace; word-break: break-all; }
+        .stat-value { font-size: 15px; font-weight: bold; color: var(--primary-gold); font-family: monospace; word-break: break-all; }
         #totalProfit { color: #00FF00; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
 
         .dashboard-card {
@@ -67,16 +67,31 @@
             position: relative;
         }
 
+        /* 📜 規則樣式 */
+        .rules-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #886600;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+        .rule-item { margin-bottom: 15px; border-bottom: 1px dashed #443300; padding-bottom: 10px; }
+        .rule-item:last-child { border-bottom: none; }
+        .rule-title { color: var(--primary-gold); font-size: 16px; margin-bottom: 4px; display: block; }
+        .rule-desc { color: #ddd; font-size: 14px; margin: 0; line-height: 1.5; }
+        .en-text { display: block; color: #999; font-size: 12px; margin-top: 2px; font-family: sans-serif; font-style: italic; }
+
         .wish-paper { background: #fffce0; border: 2px solid #b71c1c; padding: 20px 15px; color: #b71c1c; border-radius: 5px; margin-bottom: 20px; position: relative; }
         .wish-input { width: 90%; border: none; border-bottom: 2px dashed #b71c1c; background: transparent; color: #b71c1c; font-size: 18px; padding: 8px; margin: 8px 0; text-align: center; outline: none; font-weight: bold; }
         
         .btn {
             background: linear-gradient(180deg, var(--primary-gold), #FFA500);
             color: #500000; border: none; padding: 15px 30px;
-            font-size: 20px; font-weight: bold; border-radius: 50px;
+            font-size: 18px; font-weight: bold; border-radius: 50px;
             cursor: pointer; width: 100%; margin-bottom: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             display: block; 
+            white-space: pre-wrap; /* 允許按鈕內換行 */
         }
         .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
         .btn:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; opacity: 0.7; }
@@ -114,94 +129,125 @@
 
     <div id="errorModal" class="modal-overlay">
         <div class="error-modal">
-            <h3 class="error-title">⚠️ 發生錯誤 <button onclick="closeError()" style="background:none;border:none;color:#fff;font-size:20px;">&times;</button></h3>
-            <p style="color:#ccc; font-size:13px; margin:0;">請複製下方內容並貼給工程師：</p>
+            <h3 class="error-title">⚠️ 發生錯誤 (Error) <button onclick="closeError()" style="background:none;border:none;color:#fff;font-size:20px;">&times;</button></h3>
+            <p style="color:#ccc; font-size:13px; margin:0;">請複製下方內容並貼給工程師：<br>Please copy the text below:</p>
             <textarea id="errorText" class="error-content" readonly></textarea>
             <div class="modal-btn-group">
-                <button class="btn-copy" onclick="copyError()">📋 複製錯誤內容</button>
-                <button class="btn-close" onclick="closeError()">關閉</button>
+                <button class="btn-copy" onclick="copyError()">📋 複製 (Copy)</button>
+                <button class="btn-close" onclick="closeError()">Close</button>
             </div>
         </div>
     </div>
 
     <div class="marquee-container">
         <div class="marquee-content" id="marqueeText">
-            ✨ 系統啟動中... ✨
+            ✨ 系統啟動中... System Initializing... ✨
         </div>
     </div>
 
     <div class="container">
-        <h1>🏮 2026 幣圈光明燈 🏮</h1>
-        <div class="subtitle">自動購買 Pancake V3 (0.05%) 鎖倉祈福</div>
+        <h1>🏮 2026 幣圈光明燈</h1>
+        <div class="subtitle">
+            自動購買 Pancake V3 (0.05%) 鎖倉祈福<br>
+            <span class="en-text" style="color:#ffb3b3; font-style:normal;">Auto-buy Pancake V3 (0.05%) & Lock for Blessings</span>
+        </div>
 
         <div class="stats-board">
             <div class="stat-item">
-                <span class="stat-label">🔥 累積香油錢</span>
+                <span class="stat-label">🔥 累積香油錢 (TVL)</span>
                 <span class="stat-value" id="totalBNB">0.00 BNB</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">💰 累積已發利潤</span>
+                <span class="stat-label">💰 累積已發利潤 (Yield)</span>
                 <span class="stat-value" id="totalProfit">0.00 BNB</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">👥 累積信徒</span>
+                <span class="stat-label">👥 累積信徒 (Users)</span>
                 <span class="stat-value" id="totalUsers">0</span>
             </div>
         </div>
 
-        <div id="connectSection">
-            <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包 (Connect)</button>
-            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC 主網 • 0.1 ~ 1.0 BNB</p>
+        <div class="dashboard-card rules-card">
+            <h3 style="margin-top:0; color:var(--primary-gold); text-align:center;">📜 規則與心法<br><span style="font-size:14px; color:#aaa;">Rules & Law of Attraction</span></h3>
+            
+            <div class="rule-item">
+                <span class="rule-title">1. 財庫上鎖 (Locked for Wealth)</span>
+                <p class="rule-desc">您的 BNB 將自動兌換為 slisBNB 並鎖倉 365 天。這是向宇宙發出的「守財」訊號，象徵財庫穩固。</p>
+                <span class="en-text">Your BNB is swapped to slisBNB and locked for 365 days. This is a signal to the universe that you are holding for wealth.</span>
+            </div>
+
+            <div class="rule-item">
+                <span class="rule-title">2. 吸引力法則 (The Law of Attraction)</span>
+                <p class="rule-desc">財富流向耐心之人。當您許下願望並鎖定資產，放下短期波動的焦慮，您正在顯化未來的富足。</p>
+                <span class="en-text">Wealth flows to the patient. By making a wish and locking assets, letting go of short-term anxiety, you are manifesting future abundance.</span>
+            </div>
+
+            <div class="rule-item">
+                <span class="rule-title">3. 真實收益 (Real Yield)</span>
+                <p class="rule-desc">利用 PancakeSwap V3 (0.05%) 獲取市場收益。期滿時，本金加利潤將全數歸還。</p>
+                <span class="en-text">Earn market yield via PancakeSwap V3. Principal plus profit will be returned upon maturity.</span>
+            </div>
+
+            <div class="rule-item" style="border-bottom:none;">
+                <span class="rule-title" style="color:#ff5252;">4. 破財消災 (Early Exit Penalty)</span>
+                <p class="rule-desc">若未滿一年提早熄燈（違約），將扣除 5% 本金作為違約金，且不發放利潤。</p>
+                <span class="en-text">Early exit (breaking the vow) incurs a 5% fee on principal and forfeits all profits.</span>
+            </div>
         </div>
 
-        <div id="loadingMsg">⏳ 正在讀取區塊鏈數據...</div>
+        <div id="connectSection">
+            <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包<br><span style="font-size:14px;">Connect Wallet</span></button>
+            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC 主網 • 0.1 ~ 1.0 BNB<br><span class="en-text">BSC Mainnet Only</span></p>
+        </div>
+
+        <div id="loadingMsg">⏳ 正在讀取區塊鏈數據...<br><span class="en-text">Loading Blockchain Data...</span></div>
 
         <div id="lightLampSection" class="hidden">
             <div class="dashboard-card">
-                <h3 style="margin-top:0; color:var(--primary-gold);">🙏 填寫祈福疏文</h3>
+                <h3 style="margin-top:0; color:var(--primary-gold);">🙏 填寫祈福疏文<br><span style="font-size:14px; color:#aaa;">Make Your Wishes</span></h3>
                 <div class="privacy-alert">
-                    <strong>⚠️ V8 版本提示：</strong><br>
-                    本金將自動在 PancakeSwap V3 (0.05% 池) 兌換為 slisBNB。<br>
-                    香油錢限制：<strong>0.1 ~ 1.0 BNB</strong>。
+                    <strong>⚠️ V8 提示 (Note)：</strong><br>
+                    本金將兌換為 slisBNB。香油錢限制：<strong>0.1 ~ 1.0 BNB</strong>。<br>
+                    <span class="en-text" style="color:#ffcccc;">Principal swapped to slisBNB. Limit: 0.1 - 1.0 BNB.</span>
                 </div>
                 <div class="wish-paper">
-                    <div style="margin-bottom:10px; font-size:14px; opacity:0.8;">信徒：<span id="userAddrShort">...</span></div>
-                    <input type="text" id="wish1" class="wish-input" placeholder="願望一 (例: 財富自由)" maxlength="50">
-                    <input type="text" id="wish2" class="wish-input" placeholder="願望二 (例: 家人健康)" maxlength="50">
-                    <input type="text" id="wish3" class="wish-input" placeholder="願望三 (例: 合約安全)" maxlength="50">
+                    <div style="margin-bottom:10px; font-size:14px; opacity:0.8;">信徒 (User)：<span id="userAddrShort">...</span></div>
+                    <input type="text" id="wish1" class="wish-input" placeholder="願望一 (Wish 1)" maxlength="50">
+                    <input type="text" id="wish2" class="wish-input" placeholder="願望二 (Wish 2)" maxlength="50">
+                    <input type="text" id="wish3" class="wish-input" placeholder="願望三 (Wish 3)" maxlength="50">
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <label style="color:#aaa; font-size:14px;">香油錢 (BNB)</label><br>
+                    <label style="color:#aaa; font-size:14px;">香油錢 (Deposit BNB)</label><br>
                     <input type="number" id="depositAmount" value="0.1" step="0.01" min="0.1" max="1.0" 
                         style="padding: 12px; margin-top:5px; border-radius: 8px; border:2px solid var(--primary-gold); background:#300; color:var(--primary-gold); text-align:center; width:150px; font-size:20px; font-weight:bold;">
-                    <p style="color:#888; font-size:12px; margin-top:5px;">( 範圍限制：0.1 ~ 1.0 BNB )</p>
+                    <p style="color:#888; font-size:12px; margin-top:5px;">( Limit: 0.1 ~ 1.0 BNB )</p>
                 </div>
-                <button id="lightBtn" class="btn" onclick="lightLamp()">✨ 誠心點燈 (Light Up)</button>
+                <button id="lightBtn" class="btn" onclick="lightLamp()">✨ 誠心點燈<br><span style="font-size:14px;">Light Up the Lamp</span></button>
             </div>
         </div>
 
         <div id="myLampSection" class="hidden">
             <div class="dashboard-card" style="box-shadow: 0 0 20px var(--primary-gold);">
-                <h2 style="margin:0 0 15px 0; color:var(--primary-gold);">🏮 您的光明燈已安座</h2>
+                <h2 style="margin:0 0 15px 0; color:var(--primary-gold);">🏮 您的光明燈已安座<br><span style="font-size:14px; color:#aaa;">Lamp Activated</span></h2>
                 <div style="text-align: left; background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;">
                     <ul id="myWishesList" style="list-style:none; padding:0; color:#ffb3b3;"></ul>
                     <div style="border-top:1px dashed #555; margin-top:10px; padding-top:10px;">
-                        <div>💰 投入本金：<span id="myPrincipal" class="status-value">0</span> BNB</div>
-                        <div>📅 圓滿日：<span id="unlockDate" style="color:#fff;">---</span></div>
+                        <div>💰 投入本金 (Principal)：<span id="myPrincipal" class="status-value">0</span> BNB</div>
+                        <div>📅 圓滿日 (Unlock Date)：<br><span id="unlockDate" style="color:#fff;">---</span></div>
                     </div>
                 </div>
-                <div id="countdownSection" class="countdown">載入中...</div>
+                <div id="countdownSection" class="countdown">載入中... Loading...</div>
                 <div style="margin-top:20px;">
-                    <button id="redeemBtn" class="btn hidden" onclick="redeemLamp()">🎉 功德圓滿，領取本金+利潤</button>
+                    <button id="redeemBtn" class="btn hidden" onclick="redeemLamp()">🎉 功德圓滿，領取本金+利潤<br><span style="font-size:14px;">Redeem Principal + Profit</span></button>
                     <div id="earlyExitSection">
                         <div style="border:1px solid #ff5252; padding:15px; border-radius:10px; background:rgba(183,28,28,0.3);">
-                            <h4 style="margin:0 0 10px 0; color:#ff5252;">⚠️ 提早熄燈 (破財消災)</h4>
-                            <p style="color:#ff5252; font-size:13px;">警告：提早離場僅退還本金 (扣 5% 手續費)，不發放利潤。</p>
-                            <button id="requestExitBtn" class="btn btn-danger" onclick="requestEarlyExit()">申請熄燈 (開始 7 天冷卻)</button>
+                            <h4 style="margin:0 0 10px 0; color:#ff5252;">⚠️ 提早熄燈 (Emergency Exit)</h4>
+                            <p style="color:#ff5252; font-size:13px;">警告：提早離場僅退還本金 (扣 5% 手續費)，不發放利潤。<br><span class="en-text" style="color:#ffaaaa;">Warning: Early exit returns principal only (minus 5% fee). No profit.</span></p>
+                            <button id="requestExitBtn" class="btn btn-danger" onclick="requestEarlyExit()">申請熄燈 (開始 7 天冷卻)<br><span style="font-size:14px;">Request Exit (7 Days Cooldown)</span></button>
                             <div id="cooldownTimerDiv" class="hidden">
-                                <p style="color:#FFA500;">⏳ 冷卻中...</p>
+                                <p style="color:#FFA500;">⏳ 冷卻中 Cooldown Active...</p>
                                 <div id="cooldownTimer" class="countdown" style="font-size:16px;"></div>
-                                <button id="executeExitBtn" class="btn btn-danger hidden" onclick="executeEarlyExit()">確認熄燈</button>
+                                <button id="executeExitBtn" class="btn btn-danger hidden" onclick="executeEarlyExit()">確認熄燈<br><span style="font-size:14px;">Confirm Exit</span></button>
                             </div>
                         </div>
                     </div>
@@ -240,15 +286,13 @@
         const modal = document.getElementById("errorModal");
         const textArea = document.getElementById("errorText");
         
-        let errorMsg = "時間: " + new Date().toLocaleString() + "\n";
+        let errorMsg = "Time: " + new Date().toLocaleString() + "\n";
         
-        // 嘗試解析錯誤物件
         if (typeof error === 'object') {
             if (error.reason) errorMsg += `Reason: ${error.reason}\n`;
             if (error.code) errorMsg += `Code: ${error.code}\n`;
             if (error.message) errorMsg += `Message: ${error.message}\n`;
             if (error.data) {
-                // 如果 data 是物件，嘗試轉字串，如果是長字串則直接顯示
                 try {
                     errorMsg += `Data: ${JSON.stringify(error.data)}\n`;
                 } catch(e) {
@@ -274,12 +318,12 @@
         const textArea = document.getElementById("errorText");
         textArea.select();
         document.execCommand("copy");
-        alert("已複製錯誤內容！請貼給開發者。");
+        alert("已複製錯誤內容！Copied!");
     }
 
     window.onload = function() {
         if (typeof ethers === 'undefined') {
-            document.getElementById("marqueeText").innerText = "⚠️ Ethers.js 載入失敗";
+            document.getElementById("marqueeText").innerText = "⚠️ Ethers.js Load Failed";
             return;
         }
         initData();
@@ -294,7 +338,7 @@
                 const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
                 
                 const code = await readProvider.getCode(CONTRACT_ADDRESS);
-                if (code === "0x") throw new Error("合約未部署");
+                if (code === "0x") throw new Error("Contract not deployed");
 
                 const [lamps, stats] = await Promise.all([
                     readContract.getBatchLamps(150),
@@ -311,7 +355,7 @@
                 document.getElementById("totalProfit").innerText = parseFloat(ethers.utils.formatEther(totalProfit)).toFixed(4) + " BNB";
 
                 if (lamps.length === 0) {
-                    marqueeDiv.innerHTML = "✨ 2026 幣圈光明燈虛位以待，現在點燈您就是第一位！ ✨";
+                    marqueeDiv.innerHTML = "✨ 2026 幣圈光明燈虛位以待，現在點燈您就是第一位！ Be the first one! ✨";
                     return;
                 }
                 
@@ -329,18 +373,18 @@
                 return; 
 
             } catch (e) {
-                console.warn("節點重試:", e.message);
+                console.warn("RPC Retry:", e.message);
                 continue;
             }
         }
-        marqueeDiv.innerHTML = "✨ 歡迎來到幣圈光明燈 ✨";
+        marqueeDiv.innerHTML = "✨ Welcome to Crypto Beacon Light ✨";
     }
 
     async function connectWallet() {
-        if (typeof window.ethereum === 'undefined') { alert("請安裝 MetaMask"); return; }
+        if (typeof window.ethereum === 'undefined') { alert("Please install MetaMask (請安裝錢包)"); return; }
         
         const btn = document.getElementById("connectBtn");
-        btn.innerText = "連線中...";
+        btn.innerHTML = "連線中...<br><span style='font-size:14px'>Connecting...</span>";
         btn.disabled = true;
 
         try {
@@ -352,7 +396,7 @@
                 try {
                     await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }]});
                     provider = new ethers.providers.Web3Provider(window.ethereum);
-                } catch(e) { throw new Error("請切換到 BSC 主網"); }
+                } catch(e) { throw new Error("Please switch to BSC Mainnet (請切換至 BSC 主網)"); }
             }
 
             signer = provider.getSigner();
@@ -367,8 +411,8 @@
             await checkLampStatus();
 
         } catch (e) { 
-            showError(e); // 使用自定義彈窗
-            btn.innerText = "🦊 連結錢包 (Connect)";
+            showError(e); 
+            btn.innerHTML = "🦊 連結錢包<br><span style='font-size:14px'>Connect Wallet</span>";
             btn.disabled = false;
             document.getElementById("connectSection").classList.remove("hidden");
             document.getElementById("loadingMsg").style.display = "none";
@@ -387,11 +431,10 @@
                 document.getElementById("lightLampSection").classList.remove("hidden");
             }
         } catch (e) { 
-            // 如果是 call exception，特別處理訊息
             if (e.code === 'CALL_EXCEPTION') {
                 showError({
-                    message: "合約讀取失敗 (CALL_EXCEPTION)",
-                    reason: "可能原因：1. V8 ABI 不符 2. 地址錯誤 3. 節點不同步",
+                    message: "Contract Read Failed (讀取失敗)",
+                    reason: "1. Wrong Network 2. Wrong ABI 3. Node Error",
                     data: e
                 });
             } else {
@@ -399,7 +442,7 @@
             }
             
             document.getElementById("connectSection").classList.remove("hidden");
-            document.getElementById("connectBtn").innerText = "🦊 連結錢包 (Connect)";
+            document.getElementById("connectBtn").innerHTML = "🦊 連結錢包<br><span style='font-size:14px'>Connect Wallet</span>";
             document.getElementById("connectBtn").disabled = false;
             document.getElementById("loadingMsg").style.display = "none";
         }
@@ -419,7 +462,7 @@
         if(countdownInterval) clearInterval(countdownInterval);
 
         if (now >= unlockTime) {
-            document.getElementById("countdownSection").innerText = "✨ 功德圓滿！";
+            document.getElementById("countdownSection").innerText = "✨ 功德圓滿！ Completed!";
             document.getElementById("redeemBtn").classList.remove("hidden");
             document.getElementById("earlyExitSection").classList.add("hidden");
         } else {
@@ -428,13 +471,13 @@
                 document.getElementById("requestExitBtn").classList.add("hidden");
                 document.getElementById("cooldownTimerDiv").classList.remove("hidden");
                 if (now >= cooldownEnd) {
-                    document.getElementById("cooldownTimer").innerText = "冷卻結束";
+                    document.getElementById("cooldownTimer").innerText = "冷卻結束 Cooldown Ended";
                     document.getElementById("executeExitBtn").classList.remove("hidden");
                 } else {
-                    startCountdown(cooldownEnd, "cooldownTimer", "冷卻結束", () => checkLampStatus());
+                    startCountdown(cooldownEnd, "cooldownTimer", "冷卻結束 Cooldown Ended", () => checkLampStatus());
                 }
             } else {
-                startCountdown(unlockTime, "countdownSection", "即將功德圓滿", () => checkLampStatus());
+                startCountdown(unlockTime, "countdownSection", "即將功德圓滿 Almost Done", () => checkLampStatus());
             }
         }
     }
@@ -446,32 +489,30 @@
         const amt = document.getElementById("depositAmount").value;
         
         const amtFloat = parseFloat(amt);
-        if (amtFloat < 0.1 || amtFloat > 1.0) { alert("⛔️ 香油錢限制範圍：0.1 ~ 1.0 BNB"); return; }
+        if (amtFloat < 0.1 || amtFloat > 1.0) { alert("⛔️ Limit: 0.1 ~ 1.0 BNB"); return; }
         
-        if ((w1+w2+w3).match(/\d{9,}/)) { if(!confirm("⚠️ 偵測到長數字。確定要公開上鏈嗎？")) return; }
+        if ((w1+w2+w3).match(/\d{9,}/)) { if(!confirm("⚠️ 偵測到長數字。確定要公開上鏈嗎？\nContains long numbers. Proceed?")) return; }
 
         try {
-            // ESTIMATE GAS FIRST (先估算 Gas，如果會失敗這裡就會先抓到)
             const gasLimit = await contract.estimateGas.lightLamp([w1, w2, w3], { value: ethers.utils.parseEther(amt) });
             
-            // 手動加一點 Gas Buffer 防止浮動
             const tx = await contract.lightLamp([w1, w2, w3], { 
                 value: ethers.utils.parseEther(amt),
-                gasLimit: gasLimit.mul(120).div(100) // +20% gas
+                gasLimit: gasLimit.mul(120).div(100)
             });
             
-            alert("發送成功，等待上鏈...");
+            alert("發送成功，等待上鏈... Transaction Sent...");
             await tx.wait();
-            alert("🎉 點燈成功！");
+            alert("🎉 點燈成功！ Success!");
             location.reload(); 
         } catch(e) { 
-            showError(e); // 使用自定義彈窗
+            showError(e);
         }
     }
 
-    async function redeemLamp() { try { const tx = await contract.redeemLamp(); await tx.wait(); alert("領取成功"); location.reload(); } catch(e){showError(e);} }
-    async function requestEarlyExit() { if(!confirm("確定提早熄燈？")) return; try { const tx = await contract.requestEarlyExit(); await tx.wait(); alert("已申請冷卻"); location.reload(); } catch(e){showError(e);} }
-    async function executeEarlyExit() { try { const tx = await contract.executeEarlyExit(); await tx.wait(); alert("已熄燈"); location.reload(); } catch(e){showError(e);} }
+    async function redeemLamp() { try { const tx = await contract.redeemLamp(); await tx.wait(); alert("領取成功 Success!"); location.reload(); } catch(e){showError(e);} }
+    async function requestEarlyExit() { if(!confirm("確定提早熄燈？\nAre you sure to exit early?")) return; try { const tx = await contract.requestEarlyExit(); await tx.wait(); alert("已申請冷卻 Cooldown Started"); location.reload(); } catch(e){showError(e);} }
+    async function executeEarlyExit() { try { const tx = await contract.executeEarlyExit(); await tx.wait(); alert("已熄燈 Exited"); location.reload(); } catch(e){showError(e);} }
 
     function startCountdown(target, id, msg, cb) {
         const el = document.getElementById(id);
@@ -484,19 +525,10 @@
                 const h = Math.floor((diff%86400)/3600);
                 const m = Math.floor((diff%3600)/60);
                 const s = diff%60;
-                el.innerText = `還有 ${d}天 ${h}時 ${m}分 ${s}秒`;
+                el.innerText = `還有 ${d}天 ${h}時 ${m}分 ${s}秒\n${d}d ${h}h ${m}m ${s}s left`;
             }
         }, 1000);
     }
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
