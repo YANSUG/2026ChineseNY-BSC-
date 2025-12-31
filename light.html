@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🏮 數位光明燈 🏮| Crypto Beacon Light V8</title>
+    <title>🏮 2026 數位財神廟 | Crypto Beacon Light V8.5</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
@@ -179,15 +179,13 @@
         }
         textarea.error-content { width: 100%; height: 100px; background: #000; color: #0f0; margin: 10px 0; resize: none; border: 1px solid #555;}
         
-        /* 閃爍動畫，用於獲利更新 */
+        /* 閃爍動畫 */
         @keyframes pulse-green {
-            0% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); }
-            50% { text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); }
-            100% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); }
+            0% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); opacity: 0.8; }
+            50% { text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); opacity: 1; }
+            100% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); opacity: 0.8; }
         }
-        .profit-pulse {
-            animation: pulse-green 2s infinite;
-        }
+        .profit-pulse { animation: pulse-green 1.5s infinite; }
     </style>
 </head>
 <body>
@@ -355,7 +353,7 @@
             lightBtn: "✨ 誠心點燈 (Light Up)",
             lampActiveTitle: "🏮 您的光明燈已安座",
             principalLabel: "💰 投入本金",
-            estProfitLabel: "📈 當前估算獲利 (若現在解鎖)", // 新增
+            estProfitLabel: "📈 當前估算獲利 (若現在解鎖)",
             unlockLabel: "📅 圓滿日",
             redeemBtn: "🎉 功德圓滿，領取本金+利潤",
             emergencyTitle: "⚠️ 提早熄燈 (Emergency Exit)",
@@ -390,7 +388,7 @@
             lightBtn: "✨ Light Up Lamp",
             lampActiveTitle: "🏮 Lamp Activated",
             principalLabel: "💰 Principal",
-            estProfitLabel: "📈 Est. Profit (If unlocked now)", // New
+            estProfitLabel: "📈 Est. Profit (If unlocked now)",
             unlockLabel: "📅 Unlock Date",
             redeemBtn: "🎉 Maturity Reached! Claim All",
             emergencyTitle: "⚠️ Emergency Exit",
@@ -425,7 +423,7 @@
             lightBtn: "✨ 点灯する",
             lampActiveTitle: "🏮 点灯中",
             principalLabel: "💰 元本",
-            estProfitLabel: "📈 推定利益 (今すぐ解除)", // New
+            estProfitLabel: "📈 推定利益 (今すぐ解除)",
             unlockLabel: "📅 満期日",
             redeemBtn: "🎉 満期！元本と利益を受け取る",
             emergencyTitle: "⚠️ 緊急脱出",
@@ -460,7 +458,7 @@
             lightBtn: "✨ 점등하기",
             lampActiveTitle: "🏮 등불 안치 완료",
             principalLabel: "💰 원금",
-            estProfitLabel: "📈 예상 수익 (즉시 해제 시)", // New
+            estProfitLabel: "📈 예상 수익 (즉시 해제 시)",
             unlockLabel: "📅 만기일",
             redeemBtn: "🎉 만기 도달! 원금+수익 수령",
             emergencyTitle: "⚠️ 조기 종료",
@@ -497,10 +495,11 @@
     }
 
     const CONTRACT_ADDRESS = "0x0fE20821301E6a8319015a1D26D7a545630235D9"; 
-    // 🔥 Quoter (V2) for BSC Mainnet
-    const QUOTER_ADDRESS = "0xB048Bbc1Ee6b733FFfCFb9e9Ce52fCFA60a9861A";
+    // 🔥 PancakeSwap V3 Factory & Constants
+    const FACTORY_ADDRESS = "0x0BFbCF9fa4f9C56B0F40a671Ad2bd51bdE45aaed";
     const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
     const SLISBNB = "0xB0b84D294e0C75A6abe60171b70edEb2EFd14A1B";
+    const POOL_FEE = 500; // 0.05%
 
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
@@ -512,12 +511,17 @@
         "function getGlobalStats() view returns (uint256, uint256, uint256)"
     ];
 
-    // Quoter V2 Interface (Simplified for exactInputSingle)
-    const QUOTER_ABI = [
-        "function quoteExactInputSingle(tuple(address tokenIn, address tokenOut, uint256 amountIn, uint24 fee, uint160 sqrtPriceLimitX96)) external returns (uint256 amountOut, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)"
+    // Simple Factory ABI to get Pool
+    const FACTORY_ABI = [
+        "function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool)"
+    ];
+    // Simple Pool ABI to get Slot0 (Price)
+    const POOL_ABI = [
+        "function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)",
+        "function token0() external view returns (address)"
     ];
 
-    let provider, signer, contract, quoterContract;
+    let provider, signer, contract;
     let userAddress;
     let countdownInterval;
     const RPC_URLS = ["https://bsc-dataseed1.binance.org/", "https://rpc.ankr.com/bsc"];
@@ -594,8 +598,6 @@
             document.getElementById("userAddrShort").innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
             
             contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-            quoterContract = new ethers.Contract(QUOTER_ADDRESS, QUOTER_ABI, provider); // 使用 provider 讀取即可
-            
             await checkLampStatus();
 
         } catch (e) { showError(e); }
@@ -609,7 +611,7 @@
             if (lamp.exists && lamp.shares.gt(0)) {
                 document.getElementById("myLampSection").classList.remove("hidden");
                 renderMyLamp(lamp);
-                // 🔥 啟動利潤估算
+                // 🔥 啟動利潤估算 (使用新方法)
                 estimateCurrentProfit(lamp.shares, lamp.principal);
             } else {
                 document.getElementById("lightLampSection").classList.remove("hidden");
@@ -617,35 +619,52 @@
         } catch (e) { showError(e); }
     }
 
-    // 🔥 計算即時獲利的核心功能
+    // 🔥 V8.5 新增：直接讀取池子價格 (避免 Quoter 超時)
     async function estimateCurrentProfit(shares, principal) {
         const estEl = document.getElementById("estProfitVal");
         try {
-            // 建構 Quoter 參數: TokenIn (slisBNB) -> TokenOut (WBNB), Fee 500 (0.05%)
-            // 注意：使用 callStatic 模擬交易
-            const params = {
-                tokenIn: SLISBNB,
-                tokenOut: WBNB,
-                amountIn: shares,
-                fee: 500,
-                sqrtPriceLimitX96: 0
-            };
+            // 1. 取得 Pool 地址
+            const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, provider);
+            const poolAddress = await factory.getPool(SLISBNB, WBNB, POOL_FEE);
             
-            // QuoterV2 回傳 struct，ethers v5 會將其解析為陣列，第一個元素是 amountOut
-            const result = await quoterContract.callStatic.quoteExactInputSingle(params);
-            const amountOutBNB = result.amountOut || result[0];
-
-            const profitWei = amountOutBNB.sub(principal);
-            
-            if (profitWei.lt(0)) {
-                estEl.innerText = "0.0000 BNB"; // 負數顯示 0
-            } else {
-                const profitFmt = parseFloat(ethers.utils.formatEther(profitWei)).toFixed(5);
-                estEl.innerText = "+" + profitFmt + " BNB";
+            if (poolAddress === ethers.constants.AddressZero) {
+                estEl.innerText = "Pool Not Found"; return;
             }
+
+            // 2. 讀取 Pool Slot0 (價格)
+            const pool = new ethers.Contract(poolAddress, POOL_ABI, provider);
+            const [slot0, token0] = await Promise.all([
+                pool.slot0(),
+                pool.token0()
+            ]);
+
+            const sqrtPriceX96 = slot0.sqrtPriceX96;
+            
+            // 3. 計算價格 (Math: price = (sqrtPrice / 2^96)^2)
+            // 注意：slisBNB 地址 (0xB0b8..) 小於 WBNB 地址 (0xbb4C..)，所以 slisBNB 是 token0
+            // sqrtPriceX96 表示 token1/token0 的比率。
+            
+            // 使用 ethers.BigNumber 進行運算比較複雜，這裡轉成浮點數估算即可 (UI顯示用途)
+            const numerator = parseFloat(ethers.utils.formatUnits(sqrtPriceX96, 0));
+            const denominator = parseFloat(ethers.utils.formatUnits(ethers.BigNumber.from(2).pow(96), 0));
+            const price = (numerator / denominator) ** 2;
+
+            // 4. 計算總價值
+            const sharesFloat = parseFloat(ethers.utils.formatEther(shares));
+            const principalFloat = parseFloat(ethers.utils.formatEther(principal));
+            
+            const currentValBNB = sharesFloat * price;
+            const profit = currentValBNB - principalFloat;
+
+            if (profit <= 0) {
+                estEl.innerText = "0.0000 BNB"; 
+            } else {
+                estEl.innerText = "+" + profit.toFixed(5) + " BNB";
+            }
+
         } catch (e) {
             console.error("Profit calc error:", e);
-            estEl.innerText = "計算超時";
+            estEl.innerText = "讀取失敗";
         }
     }
 
@@ -725,4 +744,5 @@
 </script>
 </body>
 </html>
+
 
