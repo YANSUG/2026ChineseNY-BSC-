@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🏮 2026 數位財神廟 | Crypto Beacon Light V8.6</title>
+    <title>🏮 2026 鏈上光明燈 | V9</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
@@ -178,14 +178,6 @@
             text-align: left;
         }
         textarea.error-content { width: 100%; height: 100px; background: #000; color: #0f0; margin: 10px 0; resize: none; border: 1px solid #555;}
-        
-        /* 閃爍動畫 */
-        @keyframes pulse-green {
-            0% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); opacity: 0.8; }
-            50% { text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); opacity: 1; }
-            100% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); opacity: 0.8; }
-        }
-        .profit-pulse { animation: pulse-green 1.5s infinite; }
     </style>
 </head>
 <body>
@@ -212,7 +204,7 @@
     </div>
 
     <div class="container">
-        <h1 data-i18n="title">🏮 數位財神廟</h1>
+        <h1 data-i18n="title">🏮 鏈上光明燈</h1>
         
         <div class="subtitle">
             <span class="culture-tag" data-i18n="cultureTag">🇹🇼 台灣民俗與科技結合</span><br>
@@ -293,10 +285,6 @@
                     <ul id="myWishesList" style="list-style:none; padding:0; color:#ffb3b3;"></ul>
                     <div style="border-top:1px dashed #555; margin-top:10px; padding-top:10px;">
                         <div><span data-i18n="principalLabel">💰 投入本金</span>：<span id="myPrincipal" style="color:#fff;font-weight:bold;">0</span> BNB</div>
-                        <div style="margin-top:5px;">
-                            <span data-i18n="estProfitLabel">📈 當前估算獲利</span>：
-                            <span id="estProfitVal" class="profit-pulse" style="color:#FFA500;font-weight:bold; font-size:18px;">連線中...</span>
-                        </div>
                         <div style="margin-top:5px;font-size:12px;color:#aaa;">
                             <span data-i18n="unlockLabel">📅 圓滿日</span>：<span id="unlockDate" style="color:#fff;">---</span>
                         </div>
@@ -328,7 +316,7 @@
 <script>
     const i18nData = {
         tw: {
-            title: "🏮 數位財神廟",
+            title: "🏮 鏈上光明燈",
             subtitle: "自動補財庫 • 數位光明燈 (Pancake V3 智能鎖倉)",
             cultureTag: "🇹🇼 台灣民俗與科技結合",
             tvlLabel: "🔥 累積香油錢 (TVL)",
@@ -353,7 +341,6 @@
             lightBtn: "✨ 誠心點燈 (Light Up)",
             lampActiveTitle: "🏮 您的光明燈已安座",
             principalLabel: "💰 投入本金",
-            estProfitLabel: "📈 當前估算獲利 (若現在解鎖)",
             unlockLabel: "📅 圓滿日",
             redeemBtn: "🎉 功德圓滿，領取本金+利潤",
             emergencyTitle: "⚠️ 提早熄燈 (Emergency Exit)",
@@ -363,7 +350,7 @@
             confirmExitBtn: "確認熄燈"
         },
         en: {
-            title: "🏮 Crypto Temple",
+            title: "🏮 On-chain Beacon",
             subtitle: "Replenish Wealth Treasury • Digital Beacon Light (V3 Lock)",
             cultureTag: "🇹🇼 Taiwanese Tradition x DeFi",
             tvlLabel: "🔥 Total Value Locked (TVL)",
@@ -388,7 +375,6 @@
             lightBtn: "✨ Light Up Lamp",
             lampActiveTitle: "🏮 Lamp Activated",
             principalLabel: "💰 Principal",
-            estProfitLabel: "📈 Est. Profit (If unlocked now)",
             unlockLabel: "📅 Unlock Date",
             redeemBtn: "🎉 Maturity Reached! Claim All",
             emergencyTitle: "⚠️ Emergency Exit",
@@ -398,7 +384,7 @@
             confirmExitBtn: "Confirm Exit"
         },
         jp: {
-            title: "🏮 デジタル財神廟",
+            title: "🏮 オンチェーン光明灯",
             subtitle: "財庫補填 • デジタル光明灯 (Pancake V3 ロック)",
             cultureTag: "🇹🇼 台湾の伝統 x ブロックチェーン",
             tvlLabel: "🔥 総ロック額 (TVL)",
@@ -423,7 +409,6 @@
             lightBtn: "✨ 点灯する",
             lampActiveTitle: "🏮 点灯中",
             principalLabel: "💰 元本",
-            estProfitLabel: "📈 推定利益 (今すぐ解除)",
             unlockLabel: "📅 満期日",
             redeemBtn: "🎉 満期！元本と利益を受け取る",
             emergencyTitle: "⚠️ 緊急脱出",
@@ -433,7 +418,7 @@
             confirmExitBtn: "脱出確定"
         },
         kr: {
-            title: "🏮 디지털 재신묘",
+            title: "🏮 온체인 광명등",
             subtitle: "재물운 보강 • 디지털 광명등 (Pancake V3 락업)",
             cultureTag: "🇹🇼 대만 전통 x 블록체인",
             tvlLabel: "🔥 총 예치금 (TVL)",
@@ -458,7 +443,6 @@
             lightBtn: "✨ 점등하기",
             lampActiveTitle: "🏮 등불 안치 완료",
             principalLabel: "💰 원금",
-            estProfitLabel: "📈 예상 수익 (즉시 해제 시)",
             unlockLabel: "📅 만기일",
             redeemBtn: "🎉 만기 도달! 원금+수익 수령",
             emergencyTitle: "⚠️ 조기 종료",
@@ -495,14 +479,6 @@
     }
 
     const CONTRACT_ADDRESS = "0x0fE20821301E6a8319015a1D26D7a545630235D9"; 
-    // 🔥 PancakeSwap V3 Factory & Constants
-    const FACTORY_ADDRESS = "0x0BFbCF9fa4f9C56B0F40a671Ad2bd51bdE45aaed";
-    const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-    const SLISBNB = "0xB0b84D294e0C75A6abe60171b70edEb2EFd14A1B";
-    const POOL_FEE = 500; // 0.05%
-
-    // 🔥 強力讀取節點 (幣安官方) - 用於獲利計算，避開 Metamask
-    const READ_RPC = "https://bsc-dataseed1.binance.org/";
 
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
@@ -512,14 +488,6 @@
         "function getLampData(address _user) view returns (tuple(string[3] wishes, uint256 principal, uint256 shares, uint256 unlockTime, uint256 cooldownEndTime, bool exists))",
         "function getBatchLamps(uint256 count) view returns (tuple(address user, string[3] wishes)[])",
         "function getGlobalStats() view returns (uint256, uint256, uint256)"
-    ];
-
-    const FACTORY_ABI = [
-        "function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool)"
-    ];
-    const POOL_ABI = [
-        "function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)",
-        "function token0() external view returns (address)"
     ];
 
     let provider, signer, contract;
@@ -570,7 +538,7 @@
                     allWishes.forEach(item => { html += `<span class="marquee-item"><span class="marquee-addr">${item.addr}</span> ${item.wish}</span>`; });
                     marqueeDiv.innerHTML = html + html;
                 } else {
-                    marqueeDiv.innerHTML = "✨ 2026 數位光明燈虛位以待，現在點燈您就是第一位！ ✨";
+                    marqueeDiv.innerHTML = "✨ 2026 鏈上光明燈虛位以待，現在點燈您就是第一位！ ✨";
                 }
                 return;
             } catch (e) { continue; }
@@ -612,71 +580,10 @@
             if (lamp.exists && lamp.shares.gt(0)) {
                 document.getElementById("myLampSection").classList.remove("hidden");
                 renderMyLamp(lamp);
-                // 🔥 啟動利潤估算 (V8.6)
-                estimateCurrentProfit(lamp.shares, lamp.principal);
             } else {
                 document.getElementById("lightLampSection").classList.remove("hidden");
             }
         } catch (e) { showError(e); }
-    }
-
-    // 🔥 V8.6 強力讀取修復版
-    async function estimateCurrentProfit(shares, principal) {
-        const estEl = document.getElementById("estProfitVal");
-        try {
-            // [Fix 1] 使用專屬的 Public RPC Provider，避開 Metamask 限制
-            const readProvider = new ethers.providers.JsonRpcProvider(READ_RPC);
-            
-            // 1. 取得 Pool 地址
-            const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, readProvider);
-            const poolAddress = await factory.getPool(SLISBNB, WBNB, POOL_FEE);
-            
-            if (poolAddress === ethers.constants.AddressZero) {
-                estEl.innerText = "Pool Not Found"; return;
-            }
-
-            // 2. 讀取 Pool Slot0 (價格)
-            const pool = new ethers.Contract(poolAddress, POOL_ABI, readProvider);
-            const [slot0, token0] = await Promise.all([
-                pool.slot0(),
-                pool.token0()
-            ]);
-
-            const sqrtPriceX96 = slot0.sqrtPriceX96;
-            
-            // 3. 計算價格 (Math: price = (sqrtPrice / 2^96)^2)
-            // 判斷 token0 是誰，確保 WBNB/SLISBNB 匯率正確
-            // 如果 token0 是 SLISBNB，價格 = (sqrtPrice/2^96)^2 (每1顆SLISBNB換多少WBNB)
-            // 如果 token0 是 WBNB，價格 = 1 / ((sqrtPrice/2^96)^2)
-            
-            const numerator = parseFloat(ethers.utils.formatUnits(sqrtPriceX96, 0));
-            const denominator = parseFloat(ethers.utils.formatUnits(ethers.BigNumber.from(2).pow(96), 0));
-            let price = (numerator / denominator) ** 2;
-
-            if (token0.toLowerCase() === WBNB.toLowerCase()) {
-                price = 1 / price;
-            }
-
-            // 4. 計算總價值
-            const sharesFloat = parseFloat(ethers.utils.formatEther(shares));
-            const principalFloat = parseFloat(ethers.utils.formatEther(principal));
-            
-            const currentValBNB = sharesFloat * price;
-            const profit = currentValBNB - principalFloat;
-
-            if (profit <= 0) {
-                estEl.innerText = "0.0000 BNB"; 
-                estEl.style.color = "#00FF00";
-            } else {
-                estEl.innerText = "+" + profit.toFixed(5) + " BNB";
-                estEl.style.color = "#00FF00";
-            }
-
-        } catch (e) {
-            console.error("Profit calc error:", e);
-            estEl.innerText = "讀取失敗 (請重整)";
-            estEl.style.color = "#FF5252"; // 紅色提示
-        }
     }
 
     function renderMyLamp(lamp) {
