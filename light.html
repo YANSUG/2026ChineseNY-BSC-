@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🏮 2026 幣圈光明燈 | Crypto Beacon Light V8</title>
+    <title>🏮 2026 數位財神廟 | Crypto Beacon Light V8</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-gold: #FFD700;
             --primary-red: #D90429;
             --dark-bg: #1a0505;
+            --card-bg: rgba(60, 10, 10, 0.95);
             --neon-glow: 0 0 15px var(--primary-gold), 0 0 30px var(--primary-red);
         }
         body {
@@ -23,6 +24,34 @@
             margin: 0; padding: 0;
             min-height: 100vh;
             overflow-x: hidden;
+        }
+
+        /* 語言切換區 */
+        .lang-bar {
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            border-bottom: 1px solid #550000;
+        }
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .lang-btn.active, .lang-btn:hover {
+            background: var(--primary-gold);
+            color: #300;
+            font-weight: bold;
         }
 
         .marquee-container {
@@ -42,46 +71,87 @@
         @keyframes scroll { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
         .container { max-width: 500px; margin: 20px auto; padding: 0 20px 80px 20px; }
-        h1 { font-size: 2.2rem; margin-bottom: 5px; text-shadow: 2px 2px 8px #000; margin-top: 20px; }
-        .subtitle { color: #ffb3b3; margin-bottom: 20px; font-size: 1rem; line-height: 1.4; }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 5px; text-shadow: 2px 2px 8px #000; margin-top: 10px; }
+        .subtitle { color: #ffb3b3; margin-bottom: 20px; font-size: 1.1rem; line-height: 1.6; }
+        .culture-tag { display: inline-block; background: #500; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-bottom: 5px; }
 
-        .stats-board {
-            display: flex; justify-content: space-between;
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid var(--primary-gold);
-            border-radius: 12px;
-            padding: 15px 5px; margin-bottom: 25px;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        .tvl-card {
+            background: linear-gradient(135deg, #300 0%, #000 100%);
+            border: 2px solid var(--primary-gold);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        .stat-item { display: flex; flex-direction: column; width: 32%; align-items: center; }
-        .stat-label { font-size: 11px; color: #aaa; margin-bottom: 5px; white-space: nowrap; }
-        .stat-value { font-size: 15px; font-weight: bold; color: var(--primary-gold); font-family: monospace; word-break: break-all; }
-        #totalProfit { color: #00FF00; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
+        .tvl-card::before {
+            content: "💰";
+            position: absolute;
+            right: -10px;
+            bottom: -20px;
+            font-size: 100px;
+            opacity: 0.1;
+        }
+        .tvl-label { font-size: 14px; color: #ffcccc; letter-spacing: 1px; }
+        .tvl-value { font-size: 3.5rem; font-weight: bold; color: var(--primary-gold); margin: 5px 0; font-family: 'Roboto Mono', monospace; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .tvl-sub { font-size: 12px; color: #aaa; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-bottom: 25px;
+        }
+        .mini-stat {
+            background: rgba(255, 215, 0, 0.1); border: 1px solid #886600;
+            border-radius: 10px; padding: 10px;
+        }
+        .stat-val { font-size: 1.2rem; font-weight: bold; color: #fff; font-family: monospace; }
+        .stat-lbl { font-size: 12px; color: #aaa; }
 
         .dashboard-card {
-            background: rgba(60, 10, 10, 0.9);
-            border: 3px solid var(--primary-gold);
+            background: var(--card-bg);
+            border: 1px solid var(--primary-gold);
             border-radius: 15px;
             padding: 25px; margin-bottom: 25px;
             box-shadow: var(--neon-glow);
-            position: relative;
         }
 
-        /* 📜 規則樣式 */
-        .rules-card {
+        details.rules-accordion {
             background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #886600;
-            padding: 20px;
-            text-align: left;
+            border: 1px dashed #886600;
+            border-radius: 10px;
             margin-bottom: 25px;
+            overflow: hidden;
+            text-align: left;
         }
-        .rule-item { margin-bottom: 15px; border-bottom: 1px dashed #443300; padding-bottom: 10px; }
-        .rule-item:last-child { border-bottom: none; }
-        .rule-title { color: var(--primary-gold); font-size: 16px; margin-bottom: 4px; display: block; }
-        .rule-desc { color: #ddd; font-size: 14px; margin: 0; line-height: 1.5; }
-        .en-text { display: block; color: #999; font-size: 12px; margin-top: 2px; font-family: sans-serif; font-style: italic; }
+        details.rules-accordion summary {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--primary-gold);
+            list-style: none; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        details.rules-accordion summary::after {
+            content: "▼"; font-size: 12px; transition: transform 0.3s;
+        }
+        details.rules-accordion[open] summary::after {
+            transform: rotate(180deg);
+        }
+        .rules-content {
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid #443300;
+            color: #ddd;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .rule-item { margin-bottom: 12px; }
+        .rule-title { color: #FFA500; font-weight: bold; display: block; }
 
-        .wish-paper { background: #fffce0; border: 2px solid #b71c1c; padding: 20px 15px; color: #b71c1c; border-radius: 5px; margin-bottom: 20px; position: relative; }
+        .wish-paper { background: #fffce0; border: 2px solid #b71c1c; padding: 20px 15px; color: #b71c1c; border-radius: 5px; margin-bottom: 20px; }
         .wish-input { width: 90%; border: none; border-bottom: 2px dashed #b71c1c; background: transparent; color: #b71c1c; font-size: 18px; padding: 8px; margin: 8px 0; text-align: center; outline: none; font-weight: bold; }
         
         .btn {
@@ -90,20 +160,13 @@
             font-size: 18px; font-weight: bold; border-radius: 50px;
             cursor: pointer; width: 100%; margin-bottom: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            display: block; 
-            white-space: pre-wrap; /* 允許按鈕內換行 */
         }
         .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .btn:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; opacity: 0.7; }
+        .btn:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; }
         .btn-danger { background: linear-gradient(180deg, #ff5252, #b71c1c); color: white; }
 
-        .privacy-alert { font-size: 13px; color: #ffcccc; background: rgba(183, 28, 28, 0.6); padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ff5252; text-align: left; }
-        .status-value { font-size: 18px; font-weight: bold; color: #00FF00; }
-        .countdown { font-family: monospace; font-size: 20px; color: #FFA500; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; margin: 15px 0; }
         .hidden { display: none !important; }
-        #loadingMsg { color: #FFA500; font-size: 18px; margin: 20px 0; display: none; }
-
-        /* 🔥 除錯彈窗樣式 */
+        
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); z-index: 999;
@@ -112,142 +175,150 @@
         .error-modal {
             background: #2a0a0a; border: 2px solid #ff5252;
             padding: 20px; border-radius: 10px; width: 90%; max-width: 400px;
-            text-align: left; box-shadow: 0 0 30px #ff0000;
+            text-align: left;
         }
-        .error-title { color: #ff5252; margin-top: 0; display: flex; justify-content: space-between; align-items: center;}
-        .error-content {
-            width: 100%; height: 150px; background: #000; color: #0f0;
-            font-family: monospace; font-size: 12px; border: 1px solid #555;
-            margin: 10px 0; padding: 10px; box-sizing: border-box; resize: none;
+        textarea.error-content { width: 100%; height: 100px; background: #000; color: #0f0; margin: 10px 0; resize: none; border: 1px solid #555;}
+        
+        /* 閃爍動畫，用於獲利更新 */
+        @keyframes pulse-green {
+            0% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); }
+            50% { text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); }
+            100% { text-shadow: 0 0 0 rgba(0, 255, 0, 0.4); }
         }
-        .modal-btn-group { display: flex; gap: 10px; }
-        .btn-copy { background: #007bff; color: white; flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-close { background: #555; color: white; width: 80px; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .profit-pulse {
+            animation: pulse-green 2s infinite;
+        }
     </style>
 </head>
 <body>
 
+    <div class="lang-bar">
+        <button class="lang-btn active" onclick="setLang('tw')">繁體中文</button>
+        <button class="lang-btn" onclick="setLang('en')">English</button>
+        <button class="lang-btn" onclick="setLang('jp')">日本語</button>
+        <button class="lang-btn" onclick="setLang('kr')">한국어</button>
+    </div>
+
     <div id="errorModal" class="modal-overlay">
         <div class="error-modal">
-            <h3 class="error-title">⚠️ 發生錯誤 (Error) <button onclick="closeError()" style="background:none;border:none;color:#fff;font-size:20px;">&times;</button></h3>
-            <p style="color:#ccc; font-size:13px; margin:0;">請複製下方內容並貼給工程師：<br>Please copy the text below:</p>
+            <h3 style="color:#ff5252;margin-top:0;">⚠️ Error</h3>
             <textarea id="errorText" class="error-content" readonly></textarea>
-            <div class="modal-btn-group">
-                <button class="btn-copy" onclick="copyError()">📋 複製 (Copy)</button>
-                <button class="btn-close" onclick="closeError()">Close</button>
-            </div>
+            <button onclick="document.getElementById('errorModal').style.display='none'" style="padding:5px 10px;">Close</button>
         </div>
     </div>
 
     <div class="marquee-container">
         <div class="marquee-content" id="marqueeText">
-            ✨ 系統啟動中... System Initializing... ✨
+            ✨ System Initializing... ✨
         </div>
     </div>
 
     <div class="container">
-        <h1>🏮 2026 幣圈光明燈</h1>
+        <h1 data-i18n="title">🏮 數位財神廟</h1>
+        
         <div class="subtitle">
-            自動購買 Pancake V3 (0.05%) 鎖倉祈福<br>
-            <span class="en-text" style="color:#ffb3b3; font-style:normal;">Auto-buy Pancake V3 (0.05%) & Lock for Blessings</span>
+            <span class="culture-tag" data-i18n="cultureTag">🇹🇼 台灣民俗與科技結合</span><br>
+            <span data-i18n="subtitle">自動補財庫 • 數位光明燈 (Pancake V3 智能鎖倉)</span>
         </div>
 
-        <div class="stats-board">
-            <div class="stat-item">
-                <span class="stat-label">🔥 累積香油錢 (TVL)</span>
-                <span class="stat-value" id="totalBNB">0.00 BNB</span>
+        <div class="tvl-card">
+            <div class="tvl-label" data-i18n="tvlLabel">🔥 累積香油錢 (TVL)</div>
+            <div class="tvl-value" id="totalBNB">0.00</div>
+            <div class="tvl-sub">BNB</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="mini-stat">
+                <div class="stat-lbl" data-i18n="profitLabel">💰 累積已發利潤</div>
+                <div class="stat-val" id="totalProfit" style="color:#00FF00;">0.00</div>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">💰 累積已發利潤 (Yield)</span>
-                <span class="stat-value" id="totalProfit">0.00 BNB</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">👥 累積信徒 (Users)</span>
-                <span class="stat-value" id="totalUsers">0</span>
+            <div class="mini-stat">
+                <div class="stat-lbl" data-i18n="usersLabel">👥 累積信徒</div>
+                <div class="stat-val" id="totalUsers">0</div>
             </div>
         </div>
 
-        <div class="dashboard-card rules-card">
-            <h3 style="margin-top:0; color:var(--primary-gold); text-align:center;">📜 規則與心法<br><span style="font-size:14px; color:#aaa;">Rules & Law of Attraction</span></h3>
-            
-            <div class="rule-item">
-                <span class="rule-title">1. 財庫上鎖 (Locked for Wealth)</span>
-                <p class="rule-desc">您的 BNB 將自動兌換為 slisBNB 並鎖倉 365 天。這是向宇宙發出的「守財」訊號，象徵財庫穩固。</p>
-                <span class="en-text">Your BNB is swapped to slisBNB and locked for 365 days. This is a signal to the universe that you are holding for wealth.</span>
+        <details class="rules-accordion">
+            <summary data-i18n="rulesBtn">📜 查看規則與「補財庫」心法 (點擊展開)</summary>
+            <div class="rules-content">
+                <div class="rule-item">
+                    <span class="rule-title" data-i18n="rule1Title">1. 財庫上鎖 (Locked for Wealth)</span>
+                    <span data-i18n="rule1Desc">將 BNB 投入智能合約並鎖定 365 天，象徵「錢財只進不出」，如同將資產存入天庫，修補財運漏洞。</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-title" data-i18n="rule2Title">2. 數位光明燈 (Digital Beacon)</span>
+                    <span data-i18n="rule2Desc">您的錢包地址與願望將永久記錄在區塊鏈上，如同廟宇的光明燈，24小時照亮您的財途。</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-title" data-i18n="rule3Title">3. 真實收益 (Real Yield)</span>
+                    <span data-i18n="rule3Desc">資金自動兌換為 slisBNB 獲取 PancakeSwap V3 收益。期滿時，本金加利潤全數奉還。</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-title" style="color:#ff5252;" data-i18n="rule4Title">4. 破財消災 (Early Exit Penalty)</span>
+                    <span data-i18n="rule4Desc">未滿一年提早熄燈（違約），將扣除 5% 作為違約金，並不發放利潤。</span>
+                </div>
             </div>
-
-            <div class="rule-item">
-                <span class="rule-title">2. 吸引力法則 (The Law of Attraction)</span>
-                <p class="rule-desc">財富流向耐心之人。當您許下願望並鎖定資產，放下短期波動的焦慮，您正在顯化未來的富足。</p>
-                <span class="en-text">Wealth flows to the patient. By making a wish and locking assets, letting go of short-term anxiety, you are manifesting future abundance.</span>
-            </div>
-
-            <div class="rule-item">
-                <span class="rule-title">3. 真實收益 (Real Yield)</span>
-                <p class="rule-desc">利用 PancakeSwap V3 (0.05%) 獲取市場收益。期滿時，本金加利潤將全數歸還。</p>
-                <span class="en-text">Earn market yield via PancakeSwap V3. Principal plus profit will be returned upon maturity.</span>
-            </div>
-
-            <div class="rule-item" style="border-bottom:none;">
-                <span class="rule-title" style="color:#ff5252;">4. 破財消災 (Early Exit Penalty)</span>
-                <p class="rule-desc">若未滿一年提早熄燈（違約），將扣除 5% 本金作為違約金，且不發放利潤。</p>
-                <span class="en-text">Early exit (breaking the vow) incurs a 5% fee on principal and forfeits all profits.</span>
-            </div>
-        </div>
+        </details>
 
         <div id="connectSection">
-            <button id="connectBtn" class="btn" onclick="connectWallet()">🦊 連結錢包<br><span style="font-size:14px;">Connect Wallet</span></button>
-            <p style="color:#aaa; font-size:13px; margin-top:10px;">請使用 BSC 主網 • 0.1 ~ 1.0 BNB<br><span class="en-text">BSC Mainnet Only</span></p>
+            <button id="connectBtn" class="btn" onclick="connectWallet()" data-i18n="connectBtn">🦊 連結錢包 (Connect)</button>
+            <p style="color:#aaa; font-size:13px; margin-top:10px;" data-i18n="networkHint">請使用 BSC 主網 • 0.1 ~ 1.0 BNB</p>
         </div>
 
-        <div id="loadingMsg">⏳ 正在讀取區塊鏈數據...<br><span class="en-text">Loading Blockchain Data...</span></div>
+        <div id="loadingMsg" style="display:none; color:#FFA500; margin:20px 0;" data-i18n="loading">⏳ 讀取中...</div>
 
         <div id="lightLampSection" class="hidden">
             <div class="dashboard-card">
-                <h3 style="margin-top:0; color:var(--primary-gold);">🙏 填寫祈福疏文<br><span style="font-size:14px; color:#aaa;">Make Your Wishes</span></h3>
-                <div class="privacy-alert">
-                    <strong>⚠️ V8 提示 (Note)：</strong><br>
-                    本金將兌換為 slisBNB。香油錢限制：<strong>0.1 ~ 1.0 BNB</strong>。<br>
-                    <span class="en-text" style="color:#ffcccc;">Principal swapped to slisBNB. Limit: 0.1 - 1.0 BNB.</span>
+                <h3 style="margin-top:0; color:var(--primary-gold);" data-i18n="makeWishTitle">🙏 填寫祈福疏文</h3>
+                <div style="font-size:13px; color:#ffcccc; background:#500; padding:8px; border-radius:5px; margin-bottom:10px;" data-i18n="limitHint">
+                    ⚠️ 限制：0.1 ~ 1.0 BNB (自動兌換 slisBNB)
                 </div>
                 <div class="wish-paper">
-                    <div style="margin-bottom:10px; font-size:14px; opacity:0.8;">信徒 (User)：<span id="userAddrShort">...</span></div>
-                    <input type="text" id="wish1" class="wish-input" placeholder="願望一 (Wish 1)" maxlength="50">
-                    <input type="text" id="wish2" class="wish-input" placeholder="願望二 (Wish 2)" maxlength="50">
-                    <input type="text" id="wish3" class="wish-input" placeholder="願望三 (Wish 3)" maxlength="50">
+                    <div style="margin-bottom:10px; font-size:14px; opacity:0.8;"><span data-i18n="userLabel">信徒</span>：<span id="userAddrShort">...</span></div>
+                    <input type="text" id="wish1" class="wish-input" placeholder="願望一 (例: 財源廣進)" maxlength="50">
+                    <input type="text" id="wish2" class="wish-input" placeholder="願望二 (例: 身體健康)" maxlength="50">
+                    <input type="text" id="wish3" class="wish-input" placeholder="願望三 (例: 投資順利)" maxlength="50">
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <label style="color:#aaa; font-size:14px;">香油錢 (Deposit BNB)</label><br>
+                    <label style="color:#aaa; font-size:14px;" data-i18n="amountLabel">香油錢 (BNB)</label><br>
                     <input type="number" id="depositAmount" value="0.1" step="0.01" min="0.1" max="1.0" 
                         style="padding: 12px; margin-top:5px; border-radius: 8px; border:2px solid var(--primary-gold); background:#300; color:var(--primary-gold); text-align:center; width:150px; font-size:20px; font-weight:bold;">
-                    <p style="color:#888; font-size:12px; margin-top:5px;">( Limit: 0.1 ~ 1.0 BNB )</p>
                 </div>
-                <button id="lightBtn" class="btn" onclick="lightLamp()">✨ 誠心點燈<br><span style="font-size:14px;">Light Up the Lamp</span></button>
+                <button id="lightBtn" class="btn" onclick="lightLamp()" data-i18n="lightBtn">✨ 誠心點燈 (Light Up)</button>
             </div>
         </div>
 
         <div id="myLampSection" class="hidden">
             <div class="dashboard-card" style="box-shadow: 0 0 20px var(--primary-gold);">
-                <h2 style="margin:0 0 15px 0; color:var(--primary-gold);">🏮 您的光明燈已安座<br><span style="font-size:14px; color:#aaa;">Lamp Activated</span></h2>
+                <h2 style="margin:0 0 15px 0; color:var(--primary-gold);" data-i18n="lampActiveTitle">🏮 您的光明燈已安座</h2>
                 <div style="text-align: left; background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;">
                     <ul id="myWishesList" style="list-style:none; padding:0; color:#ffb3b3;"></ul>
                     <div style="border-top:1px dashed #555; margin-top:10px; padding-top:10px;">
-                        <div>💰 投入本金 (Principal)：<span id="myPrincipal" class="status-value">0</span> BNB</div>
-                        <div>📅 圓滿日 (Unlock Date)：<br><span id="unlockDate" style="color:#fff;">---</span></div>
+                        <div><span data-i18n="principalLabel">💰 投入本金</span>：<span id="myPrincipal" style="color:#fff;font-weight:bold;">0</span> BNB</div>
+                        <div style="margin-top:5px;">
+                            <span data-i18n="estProfitLabel">📈 當前估算獲利</span>：
+                            <span id="estProfitVal" class="profit-pulse" style="color:#00FF00;font-weight:bold; font-size:18px;">計算中...</span>
+                        </div>
+                        <div style="margin-top:5px;font-size:12px;color:#aaa;">
+                            <span data-i18n="unlockLabel">📅 圓滿日</span>：<span id="unlockDate" style="color:#fff;">---</span>
+                        </div>
                     </div>
                 </div>
-                <div id="countdownSection" class="countdown">載入中... Loading...</div>
+                <div id="countdownSection" style="font-family:monospace; font-size:18px; color:#FFA500; background:rgba(0,0,0,0.5); padding:10px; margin:15px 0; border-radius:8px;">Loading...</div>
+                
                 <div style="margin-top:20px;">
-                    <button id="redeemBtn" class="btn hidden" onclick="redeemLamp()">🎉 功德圓滿，領取本金+利潤<br><span style="font-size:14px;">Redeem Principal + Profit</span></button>
+                    <button id="redeemBtn" class="btn hidden" onclick="redeemLamp()" data-i18n="redeemBtn">🎉 功德圓滿，領取本金+利潤</button>
+                    
                     <div id="earlyExitSection">
                         <div style="border:1px solid #ff5252; padding:15px; border-radius:10px; background:rgba(183,28,28,0.3);">
-                            <h4 style="margin:0 0 10px 0; color:#ff5252;">⚠️ 提早熄燈 (Emergency Exit)</h4>
-                            <p style="color:#ff5252; font-size:13px;">警告：提早離場僅退還本金 (扣 5% 手續費)，不發放利潤。<br><span class="en-text" style="color:#ffaaaa;">Warning: Early exit returns principal only (minus 5% fee). No profit.</span></p>
-                            <button id="requestExitBtn" class="btn btn-danger" onclick="requestEarlyExit()">申請熄燈 (開始 7 天冷卻)<br><span style="font-size:14px;">Request Exit (7 Days Cooldown)</span></button>
+                            <h4 style="margin:0 0 10px 0; color:#ff5252;" data-i18n="emergencyTitle">⚠️ 提早熄燈 (Emergency Exit)</h4>
+                            <p style="color:#ff5252; font-size:13px;" data-i18n="emergencyDesc">警告：提早離場視為違約，僅退還本金 (扣 5% 手續費)，不發放利潤。</p>
+                            <button id="requestExitBtn" class="btn btn-danger" onclick="requestEarlyExit()" data-i18n="reqExitBtn">申請熄燈 (開始 7 天冷卻)</button>
+                            
                             <div id="cooldownTimerDiv" class="hidden">
-                                <p style="color:#FFA500;">⏳ 冷卻中 Cooldown Active...</p>
-                                <div id="cooldownTimer" class="countdown" style="font-size:16px;"></div>
-                                <button id="executeExitBtn" class="btn btn-danger hidden" onclick="executeEarlyExit()">確認熄燈<br><span style="font-size:14px;">Confirm Exit</span></button>
+                                <p style="color:#FFA500;" data-i18n="cooldownMsg">⏳ 冷卻中...</p>
+                                <div id="cooldownTimer" style="font-size:16px; font-family:monospace; margin-bottom:10px;"></div>
+                                <button id="executeExitBtn" class="btn btn-danger hidden" onclick="executeEarlyExit()" data-i18n="confirmExitBtn">確認熄燈</button>
                             </div>
                         </div>
                     </div>
@@ -257,10 +328,180 @@
     </div>
 
 <script>
-    // ✅ 您提供的 V8 最新地址
-    const CONTRACT_ADDRESS = "0x0fE20821301E6a8319015a1D26D7a545630235D9"; 
+    const i18nData = {
+        tw: {
+            title: "🏮 數位財神廟",
+            subtitle: "自動補財庫 • 數位光明燈 (Pancake V3 智能鎖倉)",
+            cultureTag: "🇹🇼 台灣民俗與科技結合",
+            tvlLabel: "🔥 累積香油錢 (TVL)",
+            profitLabel: "💰 累積已發利潤",
+            usersLabel: "👥 累積信徒",
+            rulesBtn: "📜 查看規則與「補財庫」心法 (點擊展開)",
+            rule1Title: "1. 財庫上鎖 (Locked for Wealth)",
+            rule1Desc: "將 BNB 投入智能合約並鎖定 365 天，象徵「錢財只進不出」，如同將資產存入天庫，修補財運漏洞。",
+            rule2Title: "2. 數位光明燈 (Digital Beacon)",
+            rule2Desc: "您的錢包地址與願望將永久記錄在區塊鏈上，如同廟宇的光明燈，24小時照亮您的財途。",
+            rule3Title: "3. 真實收益 (Real Yield)",
+            rule3Desc: "資金自動兌換為 slisBNB 獲取 PancakeSwap V3 收益。期滿時，本金加利潤全數奉還。",
+            rule4Title: "4. 破財消災 (Early Exit Penalty)",
+            rule4Desc: "未滿一年提早熄燈（違約），將扣除 5% 作為違約金，並不發放利潤。",
+            connectBtn: "🦊 連結錢包 (Connect)",
+            networkHint: "請使用 BSC 主網 • 0.1 ~ 1.0 BNB",
+            loading: "⏳ 讀取中...",
+            makeWishTitle: "🙏 填寫祈福疏文",
+            limitHint: "⚠️ 限制：0.1 ~ 1.0 BNB (自動兌換 slisBNB)",
+            userLabel: "信徒",
+            amountLabel: "香油錢 (BNB)",
+            lightBtn: "✨ 誠心點燈 (Light Up)",
+            lampActiveTitle: "🏮 您的光明燈已安座",
+            principalLabel: "💰 投入本金",
+            estProfitLabel: "📈 當前估算獲利 (若現在解鎖)", // 新增
+            unlockLabel: "📅 圓滿日",
+            redeemBtn: "🎉 功德圓滿，領取本金+利潤",
+            emergencyTitle: "⚠️ 提早熄燈 (Emergency Exit)",
+            emergencyDesc: "警告：提早離場視為違約，僅退還本金 (扣 5% 手續費)，不發放利潤。",
+            reqExitBtn: "申請熄燈 (開始 7 天冷卻)",
+            cooldownMsg: "⏳ 冷卻中...",
+            confirmExitBtn: "確認熄燈"
+        },
+        en: {
+            title: "🏮 Crypto Temple",
+            subtitle: "Replenish Wealth Treasury • Digital Beacon Light (V3 Lock)",
+            cultureTag: "🇹🇼 Taiwanese Tradition x DeFi",
+            tvlLabel: "🔥 Total Value Locked (TVL)",
+            profitLabel: "💰 Yield Paid",
+            usersLabel: "👥 Believers",
+            rulesBtn: "📜 Rules & The Law of Attraction (Click)",
+            rule1Title: "1. Lock for Wealth",
+            rule1Desc: "Locking BNB for 365 days symbolizes securing your 'Wealth Treasury' to prevent financial leakage.",
+            rule2Title: "2. Digital Beacon",
+            rule2Desc: "Your address and wishes are immutable on the blockchain, shining like a beacon light 24/7.",
+            rule3Title: "3. Real Yield",
+            rule3Desc: "Funds are swapped to slisBNB for PancakeSwap V3 yield. Principal + Profit returned upon maturity.",
+            rule4Title: "4. Penalty (Breaking Vow)",
+            rule4Desc: "Early exit incurs a 5% fee on principal and forfeits all accumulated profits.",
+            connectBtn: "🦊 Connect Wallet",
+            networkHint: "BSC Mainnet • 0.1 ~ 1.0 BNB",
+            loading: "⏳ Loading...",
+            makeWishTitle: "🙏 Make Your Wish",
+            limitHint: "⚠️ Limit: 0.1 ~ 1.0 BNB (Swapped to slisBNB)",
+            userLabel: "User",
+            amountLabel: "Donation (BNB)",
+            lightBtn: "✨ Light Up Lamp",
+            lampActiveTitle: "🏮 Lamp Activated",
+            principalLabel: "💰 Principal",
+            estProfitLabel: "📈 Est. Profit (If unlocked now)", // New
+            unlockLabel: "📅 Unlock Date",
+            redeemBtn: "🎉 Maturity Reached! Claim All",
+            emergencyTitle: "⚠️ Emergency Exit",
+            emergencyDesc: "Warning: Early exit returns Principal minus 5% Fee. No profit.",
+            reqExitBtn: "Request Exit (7d Cooldown)",
+            cooldownMsg: "⏳ Cooldown Active...",
+            confirmExitBtn: "Confirm Exit"
+        },
+        jp: {
+            title: "🏮 デジタル財神廟",
+            subtitle: "財庫補填 • デジタル光明灯 (Pancake V3 ロック)",
+            cultureTag: "🇹🇼 台湾の伝統 x ブロックチェーン",
+            tvlLabel: "🔥 総ロック額 (TVL)",
+            profitLabel: "💰 分配済み利益",
+            usersLabel: "👥 信者数",
+            rulesBtn: "📜 ルールと財運の法則 (クリックして展開)",
+            rule1Title: "1. 財庫のロック (Lock)",
+            rule1Desc: "BNBを365日間ロックすることは、資産を天の金庫に預け、財運を安定させることを象徴しています。",
+            rule2Title: "2. デジタル光明灯",
+            rule2Desc: "あなたのアドレスと願いはブロックチェーンに永遠に刻まれ、24時間あなたの道を照らします。",
+            rule3Title: "3. リアルイールド",
+            rule3Desc: "資金はslisBNBに交換され運用されます。満期時に元本と利益が返還されます。",
+            rule4Title: "4. 早期解約ペナルティ",
+            rule4Desc: "1年未満の解約は5%の手数料が発生し、利益は没収されます。",
+            connectBtn: "🦊 ウォレット接続",
+            networkHint: "BSCメインネット • 0.1 ~ 1.0 BNB",
+            loading: "⏳ 読み込み中...",
+            makeWishTitle: "🙏 願い事を書く",
+            limitHint: "⚠️ 制限：0.1 ~ 1.0 BNB",
+            userLabel: "信者",
+            amountLabel: "奉納額 (BNB)",
+            lightBtn: "✨ 点灯する",
+            lampActiveTitle: "🏮 点灯中",
+            principalLabel: "💰 元本",
+            estProfitLabel: "📈 推定利益 (今すぐ解除)", // New
+            unlockLabel: "📅 満期日",
+            redeemBtn: "🎉 満期！元本と利益を受け取る",
+            emergencyTitle: "⚠️ 緊急脱出",
+            emergencyDesc: "警告：早期脱出は元本の5%が手数料として引かれ、利益はありません。",
+            reqExitBtn: "脱出申請 (7日間の冷却期間)",
+            cooldownMsg: "⏳ 冷却中...",
+            confirmExitBtn: "脱出確定"
+        },
+        kr: {
+            title: "🏮 디지털 재신묘",
+            subtitle: "재물운 보강 • 디지털 광명등 (Pancake V3 락업)",
+            cultureTag: "🇹🇼 대만 전통 x 블록체인",
+            tvlLabel: "🔥 총 예치금 (TVL)",
+            profitLabel: "💰 분배된 수익",
+            usersLabel: "👥 참여자 수",
+            rulesBtn: "📜 규칙 및 재물운 법칙 (클릭)",
+            rule1Title: "1. 재물 창고 잠금",
+            rule1Desc: "365일 동안 BNB를 잠그는 것은 재물운이 새나가지 않도록 하늘의 창고에 보관하는 것을 의미합니다.",
+            rule2Title: "2. 디지털 광명등",
+            rule2Desc: "당신의 주소와 소원은 블록체인에 영구히 기록되어 24시간 당신의 앞길을 비춥니다.",
+            rule3Title: "3. 실질 수익 (Real Yield)",
+            rule3Desc: "자금은 slisBNB로 교환되어 운용됩니다. 만기 시 원금과 수익이 반환됩니다.",
+            rule4Title: "4. 조기 종료 위약금",
+            rule4Desc: "1년 미만 조기 종료 시 원금의 5%가 차감되며, 수익은 지급되지 않습니다.",
+            connectBtn: "🦊 지갑 연결",
+            networkHint: "BSC 메인넷 • 0.1 ~ 1.0 BNB",
+            loading: "⏳ 로딩 중...",
+            makeWishTitle: "🙏 소원 적기",
+            limitHint: "⚠️ 한도: 0.1 ~ 1.0 BNB",
+            userLabel: "신도",
+            amountLabel: "봉납액 (BNB)",
+            lightBtn: "✨ 점등하기",
+            lampActiveTitle: "🏮 등불 안치 완료",
+            principalLabel: "💰 원금",
+            estProfitLabel: "📈 예상 수익 (즉시 해제 시)", // New
+            unlockLabel: "📅 만기일",
+            redeemBtn: "🎉 만기 도달! 원금+수익 수령",
+            emergencyTitle: "⚠️ 조기 종료",
+            emergencyDesc: "경고: 조기 종료 시 원금의 5% 수수료가 발생하며 수익은 없습니다.",
+            reqExitBtn: "종료 신청 (7일 대기)",
+            cooldownMsg: "⏳ 대기 중...",
+            confirmExitBtn: "종료 확정"
+        }
+    };
 
-    // ✅ V8 ABI
+    function setLang(lang) {
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const data = i18nData[lang];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if(data[key]) el.innerText = data[key];
+        });
+
+        if(lang === 'tw') {
+            document.getElementById('wish1').placeholder = "願望一 (例: 財源廣進)";
+            document.getElementById('wish2').placeholder = "願望二 (例: 身體健康)";
+            document.getElementById('wish3').placeholder = "願望三 (例: 投資順利)";
+        } else if(lang === 'en') {
+            document.getElementById('wish1').placeholder = "Wish 1 (e.g. Wealth)";
+            document.getElementById('wish2').placeholder = "Wish 2 (e.g. Health)";
+            document.getElementById('wish3').placeholder = "Wish 3 (e.g. Success)";
+        } else {
+            document.getElementById('wish1').placeholder = "Wish 1";
+            document.getElementById('wish2').placeholder = "Wish 2";
+            document.getElementById('wish3').placeholder = "Wish 3";
+        }
+    }
+
+    const CONTRACT_ADDRESS = "0x0fE20821301E6a8319015a1D26D7a545630235D9"; 
+    // 🔥 Quoter (V2) for BSC Mainnet
+    const QUOTER_ADDRESS = "0xB048Bbc1Ee6b733FFfCFb9e9Ce52fCFA60a9861A";
+    const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+    const SLISBNB = "0xB0b84D294e0C75A6abe60171b70edEb2EFd14A1B";
+
     const ABI = [
         "function lightLamp(string[3] _wishes) external payable",
         "function redeemLamp() external",
@@ -271,122 +512,68 @@
         "function getGlobalStats() view returns (uint256, uint256, uint256)"
     ];
 
-    let provider, signer, contract;
-    let userAddress;
-    let countdownInterval;
-
-    const RPC_URLS = [
-        "https://bsc-dataseed1.binance.org/",
-        "https://rpc.ankr.com/bsc",
-        "https://bsc-dataseed2.binance.org/"
+    // Quoter V2 Interface (Simplified for exactInputSingle)
+    const QUOTER_ABI = [
+        "function quoteExactInputSingle(tuple(address tokenIn, address tokenOut, uint256 amountIn, uint24 fee, uint160 sqrtPriceLimitX96)) external returns (uint256 amountOut, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)"
     ];
 
-    // 🔥 除錯視窗邏輯
-    function showError(error) {
+    let provider, signer, contract, quoterContract;
+    let userAddress;
+    let countdownInterval;
+    const RPC_URLS = ["https://bsc-dataseed1.binance.org/", "https://rpc.ankr.com/bsc"];
+
+    function showError(err) {
         const modal = document.getElementById("errorModal");
-        const textArea = document.getElementById("errorText");
-        
-        let errorMsg = "Time: " + new Date().toLocaleString() + "\n";
-        
-        if (typeof error === 'object') {
-            if (error.reason) errorMsg += `Reason: ${error.reason}\n`;
-            if (error.code) errorMsg += `Code: ${error.code}\n`;
-            if (error.message) errorMsg += `Message: ${error.message}\n`;
-            if (error.data) {
-                try {
-                    errorMsg += `Data: ${JSON.stringify(error.data)}\n`;
-                } catch(e) {
-                    errorMsg += `Data: ${error.data}\n`;
-                }
-            }
-        } else {
-            errorMsg += String(error);
-        }
-
-        errorMsg += "\n\n(請截圖或複製此內容給開發者)";
-        
-        textArea.value = errorMsg;
+        let msg = typeof err === 'object' ? JSON.stringify(err, null, 2) : err;
+        document.getElementById("errorText").value = msg;
         modal.style.display = "flex";
-        console.error("捕捉到錯誤:", error);
-    }
-
-    function closeError() {
-        document.getElementById("errorModal").style.display = "none";
-    }
-
-    function copyError() {
-        const textArea = document.getElementById("errorText");
-        textArea.select();
-        document.execCommand("copy");
-        alert("已複製錯誤內容！Copied!");
     }
 
     window.onload = function() {
-        if (typeof ethers === 'undefined') {
-            document.getElementById("marqueeText").innerText = "⚠️ Ethers.js Load Failed";
-            return;
-        }
         initData();
     };
 
     async function initData() {
         const marqueeDiv = document.getElementById("marqueeText");
-        
         for (let url of RPC_URLS) {
             try {
                 const readProvider = new ethers.providers.JsonRpcProvider(url);
                 const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
                 
                 const code = await readProvider.getCode(CONTRACT_ADDRESS);
-                if (code === "0x") throw new Error("Contract not deployed");
+                if (code === "0x") throw new Error("Contract Error");
 
                 const [lamps, stats] = await Promise.all([
                     readContract.getBatchLamps(150),
                     readContract.getGlobalStats()
                 ]);
 
-                // V8 統計
-                const totalDeposited = stats[0];
-                const totalUsers = stats[1];
-                const totalProfit = stats[2];
+                document.getElementById("totalBNB").innerText = parseFloat(ethers.utils.formatEther(stats[0])).toFixed(2);
+                document.getElementById("totalUsers").innerText = stats[1].toString();
+                document.getElementById("totalProfit").innerText = parseFloat(ethers.utils.formatEther(stats[2])).toFixed(4) + " BNB";
 
-                document.getElementById("totalBNB").innerText = parseFloat(ethers.utils.formatEther(totalDeposited)).toFixed(2) + " BNB";
-                document.getElementById("totalUsers").innerText = totalUsers.toString();
-                document.getElementById("totalProfit").innerText = parseFloat(ethers.utils.formatEther(totalProfit)).toFixed(4) + " BNB";
-
-                if (lamps.length === 0) {
-                    marqueeDiv.innerHTML = "✨ 2026 幣圈光明燈虛位以待，現在點燈您就是第一位！ Be the first one! ✨";
-                    return;
+                if (lamps.length > 0) {
+                    let html = "";
+                    let allWishes = [];
+                    for (let i = 0; i < 3; i++) {
+                        lamps.forEach(lamp => {
+                            const addr = lamp.user.substring(0,6) + ".." + lamp.user.substring(38);
+                            const wish = lamp.wishes[i];
+                            if (wish && wish.trim() !== "") allWishes.push({ addr, wish });
+                        });
+                    }
+                    allWishes.forEach(item => { html += `<span class="marquee-item"><span class="marquee-addr">${item.addr}</span> ${item.wish}</span>`; });
+                    marqueeDiv.innerHTML = html + html;
+                } else {
+                    marqueeDiv.innerHTML = "✨ 2026 數位光明燈虛位以待，現在點燈您就是第一位！ ✨";
                 }
-                
-                let html = "";
-                let allWishes = [];
-                for (let i = 0; i < 3; i++) {
-                    lamps.forEach(lamp => {
-                        const addr = lamp.user.substring(0,6) + ".." + lamp.user.substring(38);
-                        const wish = lamp.wishes[i];
-                        if (wish && wish.trim() !== "") allWishes.push({ addr, wish });
-                    });
-                }
-                allWishes.forEach(item => { html += `<span class="marquee-item"><span class="marquee-addr">${item.addr}</span> ${item.wish}</span>`; });
-                marqueeDiv.innerHTML = html + html;
-                return; 
-
-            } catch (e) {
-                console.warn("RPC Retry:", e.message);
-                continue;
-            }
+                return;
+            } catch (e) { continue; }
         }
-        marqueeDiv.innerHTML = "✨ Welcome to Crypto Beacon Light ✨";
     }
 
     async function connectWallet() {
-        if (typeof window.ethereum === 'undefined') { alert("Please install MetaMask (請安裝錢包)"); return; }
-        
-        const btn = document.getElementById("connectBtn");
-        btn.innerHTML = "連線中...<br><span style='font-size:14px'>Connecting...</span>";
-        btn.disabled = true;
-
+        if (typeof window.ethereum === 'undefined') { alert("Please install MetaMask"); return; }
         try {
             provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
@@ -396,7 +583,7 @@
                 try {
                     await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }]});
                     provider = new ethers.providers.Web3Provider(window.ethereum);
-                } catch(e) { throw new Error("Please switch to BSC Mainnet (請切換至 BSC 主網)"); }
+                } catch(e) { throw new Error("Switch to BSC Mainnet"); }
             }
 
             signer = provider.getSigner();
@@ -407,16 +594,11 @@
             document.getElementById("userAddrShort").innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
             
             contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+            quoterContract = new ethers.Contract(QUOTER_ADDRESS, QUOTER_ABI, provider); // 使用 provider 讀取即可
             
             await checkLampStatus();
 
-        } catch (e) { 
-            showError(e); 
-            btn.innerHTML = "🦊 連結錢包<br><span style='font-size:14px'>Connect Wallet</span>";
-            btn.disabled = false;
-            document.getElementById("connectSection").classList.remove("hidden");
-            document.getElementById("loadingMsg").style.display = "none";
-        }
+        } catch (e) { showError(e); }
     }
 
     async function checkLampStatus() {
@@ -427,24 +609,43 @@
             if (lamp.exists && lamp.shares.gt(0)) {
                 document.getElementById("myLampSection").classList.remove("hidden");
                 renderMyLamp(lamp);
+                // 🔥 啟動利潤估算
+                estimateCurrentProfit(lamp.shares, lamp.principal);
             } else {
                 document.getElementById("lightLampSection").classList.remove("hidden");
             }
-        } catch (e) { 
-            if (e.code === 'CALL_EXCEPTION') {
-                showError({
-                    message: "Contract Read Failed (讀取失敗)",
-                    reason: "1. Wrong Network 2. Wrong ABI 3. Node Error",
-                    data: e
-                });
-            } else {
-                showError(e);
-            }
+        } catch (e) { showError(e); }
+    }
+
+    // 🔥 計算即時獲利的核心功能
+    async function estimateCurrentProfit(shares, principal) {
+        const estEl = document.getElementById("estProfitVal");
+        try {
+            // 建構 Quoter 參數: TokenIn (slisBNB) -> TokenOut (WBNB), Fee 500 (0.05%)
+            // 注意：使用 callStatic 模擬交易
+            const params = {
+                tokenIn: SLISBNB,
+                tokenOut: WBNB,
+                amountIn: shares,
+                fee: 500,
+                sqrtPriceLimitX96: 0
+            };
             
-            document.getElementById("connectSection").classList.remove("hidden");
-            document.getElementById("connectBtn").innerHTML = "🦊 連結錢包<br><span style='font-size:14px'>Connect Wallet</span>";
-            document.getElementById("connectBtn").disabled = false;
-            document.getElementById("loadingMsg").style.display = "none";
+            // QuoterV2 回傳 struct，ethers v5 會將其解析為陣列，第一個元素是 amountOut
+            const result = await quoterContract.callStatic.quoteExactInputSingle(params);
+            const amountOutBNB = result.amountOut || result[0];
+
+            const profitWei = amountOutBNB.sub(principal);
+            
+            if (profitWei.lt(0)) {
+                estEl.innerText = "0.0000 BNB"; // 負數顯示 0
+            } else {
+                const profitFmt = parseFloat(ethers.utils.formatEther(profitWei)).toFixed(5);
+                estEl.innerText = "+" + profitFmt + " BNB";
+            }
+        } catch (e) {
+            console.error("Profit calc error:", e);
+            estEl.innerText = "計算超時";
         }
     }
 
@@ -454,15 +655,14 @@
         lamp[0].forEach(w => { if(w) wishList.innerHTML += `<li>✨ ${w}</li>`; });
         
         document.getElementById("myPrincipal").innerText = parseFloat(ethers.utils.formatEther(lamp[1])).toFixed(4);
-        
         const unlockTime = lamp[3].toNumber();
-        const now = Math.floor(Date.now() / 1000);
         document.getElementById("unlockDate").innerText = new Date(unlockTime*1000).toLocaleString();
 
         if(countdownInterval) clearInterval(countdownInterval);
+        const now = Math.floor(Date.now() / 1000);
 
         if (now >= unlockTime) {
-            document.getElementById("countdownSection").innerText = "✨ 功德圓滿！ Completed!";
+            document.getElementById("countdownSection").innerText = "✨ 功德圓滿！";
             document.getElementById("redeemBtn").classList.remove("hidden");
             document.getElementById("earlyExitSection").classList.add("hidden");
         } else {
@@ -471,13 +671,13 @@
                 document.getElementById("requestExitBtn").classList.add("hidden");
                 document.getElementById("cooldownTimerDiv").classList.remove("hidden");
                 if (now >= cooldownEnd) {
-                    document.getElementById("cooldownTimer").innerText = "冷卻結束 Cooldown Ended";
+                    document.getElementById("cooldownTimer").innerText = "Ready to Exit";
                     document.getElementById("executeExitBtn").classList.remove("hidden");
                 } else {
-                    startCountdown(cooldownEnd, "cooldownTimer", "冷卻結束 Cooldown Ended", () => checkLampStatus());
+                    startCountdown(cooldownEnd, "cooldownTimer", "Ready", () => checkLampStatus());
                 }
             } else {
-                startCountdown(unlockTime, "countdownSection", "即將功德圓滿 Almost Done", () => checkLampStatus());
+                startCountdown(unlockTime, "countdownSection", "Done", () => checkLampStatus());
             }
         }
     }
@@ -488,31 +688,24 @@
         const w3 = document.getElementById("wish3").value;
         const amt = document.getElementById("depositAmount").value;
         
-        const amtFloat = parseFloat(amt);
-        if (amtFloat < 0.1 || amtFloat > 1.0) { alert("⛔️ Limit: 0.1 ~ 1.0 BNB"); return; }
-        
-        if ((w1+w2+w3).match(/\d{9,}/)) { if(!confirm("⚠️ 偵測到長數字。確定要公開上鏈嗎？\nContains long numbers. Proceed?")) return; }
+        if ((w1+w2+w3).match(/\d{9,}/)) { if(!confirm("Contains long numbers. Proceed?")) return; }
 
         try {
             const gasLimit = await contract.estimateGas.lightLamp([w1, w2, w3], { value: ethers.utils.parseEther(amt) });
-            
             const tx = await contract.lightLamp([w1, w2, w3], { 
                 value: ethers.utils.parseEther(amt),
                 gasLimit: gasLimit.mul(120).div(100)
             });
-            
-            alert("發送成功，等待上鏈... Transaction Sent...");
+            alert("Transaction Sent...");
             await tx.wait();
-            alert("🎉 點燈成功！ Success!");
+            alert("Success!");
             location.reload(); 
-        } catch(e) { 
-            showError(e);
-        }
+        } catch(e) { showError(e); }
     }
 
-    async function redeemLamp() { try { const tx = await contract.redeemLamp(); await tx.wait(); alert("領取成功 Success!"); location.reload(); } catch(e){showError(e);} }
-    async function requestEarlyExit() { if(!confirm("確定提早熄燈？\nAre you sure to exit early?")) return; try { const tx = await contract.requestEarlyExit(); await tx.wait(); alert("已申請冷卻 Cooldown Started"); location.reload(); } catch(e){showError(e);} }
-    async function executeEarlyExit() { try { const tx = await contract.executeEarlyExit(); await tx.wait(); alert("已熄燈 Exited"); location.reload(); } catch(e){showError(e);} }
+    async function redeemLamp() { try { const tx = await contract.redeemLamp(); await tx.wait(); alert("Success!"); location.reload(); } catch(e){showError(e);} }
+    async function requestEarlyExit() { if(!confirm("Sure? 5% Fee applies.")) return; try { const tx = await contract.requestEarlyExit(); await tx.wait(); alert("Cooldown Started"); location.reload(); } catch(e){showError(e);} }
+    async function executeEarlyExit() { try { const tx = await contract.executeEarlyExit(); await tx.wait(); alert("Exited"); location.reload(); } catch(e){showError(e);} }
 
     function startCountdown(target, id, msg, cb) {
         const el = document.getElementById(id);
@@ -525,10 +718,11 @@
                 const h = Math.floor((diff%86400)/3600);
                 const m = Math.floor((diff%3600)/60);
                 const s = diff%60;
-                el.innerText = `還有 ${d}天 ${h}時 ${m}分 ${s}秒\n${d}d ${h}h ${m}m ${s}s left`;
+                el.innerText = `${d}d ${h}h ${m}m ${s}s`;
             }
         }, 1000);
     }
 </script>
 </body>
 </html>
+
